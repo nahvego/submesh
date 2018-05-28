@@ -1,0 +1,26 @@
+{
+  "name": "proyecto-final",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js DEBUG"
+  },
+  "author": "Nahuel Verdecchia González",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^2.0.1",
+    "cors": "^2.8.4",
+    "depicts-whole-number": "^1.0.8",
+    "email-validator": "^2.0.4",
+    "error-handler": "file:modules/error-handler",
+    "express": "^4.16.3",
+    "is-image-url": "^1.1.8",
+    "is-positive-integer": "^1.1.1",
+    "models": "file:modules/models",
+    "morgan": "^1.9.0",
+    "mysql": "^2.15.0",
+    "settings": "file:modules/settings"
+  }
+}

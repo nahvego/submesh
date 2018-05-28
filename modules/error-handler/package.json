@@ -1,0 +1,11 @@
+{
+  "name": "error-handler",
+  "version": "1.0.0",
+  "description": "PRIVATE: Provides some function for error handling in Express HTTP requests",
+  "main": "error-handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nahuel Verdecchia González",
+  "license": "ISC"
+}

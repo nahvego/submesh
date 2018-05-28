@@ -1,0 +1,11 @@
+{
+  "name": "models",
+  "version": "1.0.0",
+  "description": "Provices functionality to handle a simple model-based architecture while remaining type-less",
+  "main": "models.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nahuel Verdecchia González",
+  "license": "ISC"
+}

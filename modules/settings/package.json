@@ -1,0 +1,11 @@
+{
+  "name": "settings",
+  "version": "1.0.0",
+  "description": "Settings for the API",
+  "main": "settings.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nahuel Verdecchia González",
+  "license": "ISC"
+}
