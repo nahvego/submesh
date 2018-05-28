@@ -1,0 +1,11 @@
+{
+  "name": "auth-parser",
+  "version": "1.0.0",
+  "description": "Parses authentication header to get logged information",
+  "main": "auth-parser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

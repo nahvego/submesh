@@ -2,7 +2,7 @@
 'use strict';
 
 const express = require('express');
-const { appChecker, authChecker, queryChecker } = require('./middlewares/checkers.js');
+const { headerChecker, appChecker, authChecker, queryChecker } = require('./middlewares/checkers.js');
 /*
 const usersRouter = require('./usersAPI');
 const postsRouter = require('./postsAPI');
@@ -17,6 +17,7 @@ const router = express.Router();
 router.use(require('./middlewares/prepare-request.js'));
 
 
+router.use(headerChecker);
 router.use(appChecker);
 router.use(authChecker);
 router.use(queryChecker);

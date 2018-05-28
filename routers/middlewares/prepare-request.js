@@ -26,9 +26,15 @@ module.exports = async function(req, res, next) {
 		return badPetition("dbConnection");
 	}
 
-	Object.defineProperty(req, "db", {
-		value: conn,
-		enumerable: true
+	Object.defineProperties(req, {
+		"db": {
+			value: conn,
+			enumerable: true
+		},
+		"isAllowedTo": {
+			value: require('./isAllowedTo.js'),
+			enumerable: true
+		}
 	})
 
 	// Redefinimos la funcion json como _json. Lo hacemos ANTES porque defineProperties no garantiza el orden al definir las propiedades
