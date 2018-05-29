@@ -22,25 +22,27 @@ El servidor crea una pool de conexiones y utiliza una conexión por request, _pa
 - Se asignan permisos a roles mediante una entrada en `role_permissions`
 
 ### Todos los permisos
-- Leer perfil completo		- get-full-profile
-- Editar usuario			- edit-users
-- Borrar usuario			- delete-users
-
-- Desactivar post			- remove-posts
-- Borrar post				- delete-posts
-
-- Desactivar comentarios	- remove-comments
-- Borrar comentarios		- delete-comments
-
-- Desactivar siub			- remove-subs
-- Borrar sub				- delete-subs
-- Editar sub				- edit-subs
-- Otros datos del sub?		- ??
-- Nada más?
+| Permiso               |Codename        |
+| :---: | :---: |
+|Leer perfil completo  |get-full-profile|
+|Editar usuario	       |edit-users      |
+|Borrar usuario        |delete-users    |
+|----------------------|----------------|
+|Desactivar post       |remove-posts    |
+|Borrar post           |delete-posts    |
+|----------------------|----------------|
+|Desactivar comentarios|remove-comments |
+|Borrar comentarios    |delete-comments |
+|----------------------|----------------|
+|Desactivar siub       |remove-subs     |
+|Borrar sub            |delete-subs     |
+|Editar sub            |edit-subs       |
+|Otros datos del sub?  |??              |
+|Nada más?             |                |
 
 ## Request
 El objeto request se modifica en varios momentos según pasa por diferentes middlewares
-[x] Al autenticarse se crea `req.user` que tiene el formato:
+- [x] Al autenticarse se crea `req.user` que tiene el formato:
 ```
 req.user = {
 	id: 'id del usuario', // es una string!
@@ -51,31 +53,31 @@ req.user = {
 	permissions: [ perms ] // Array de permisos del rol.
 }
 ```
-[x] Conexión a la conexión de la petición en `req.db`
-[x] La función `isAllowedTo(permissionCode [, user]` en `req.isAllowedTo` para comprobar acceso
-[ ] Otros datos como el sub cuando se entra en posts, etc se guardarán en la request
+- [x] Conexión a la conexión de la petición en `req.db`
+- [x] La función `isAllowedTo(permissionCode [, user]` en `req.isAllowedTo` para comprobar acceso
+- [ ] Otros datos como el sub cuando se entra en posts, etc se guardarán en la request
 
 ## Response
 El objeto response también se modifica
-[x] La función `res.json` pasa a llamarse `res._json` y se establece en su lugar una función equivalente pero que devuelve la conexión automáticamente
-[x] `res.releaseDB` llama al ConnectionManager para devolver la conexión
-[x] `res._db` referencia a la conexión, privada.
-[x] `res.badPetition` para estandarizar los resultados de peticiones incorrectas [WIP] 
+- [x] La función `res.json` pasa a llamarse `res._json` y se establece en su lugar una función equivalente pero que devuelve la conexión automáticamente
+- [x] `res.releaseDB` llama al ConnectionManager para devolver la conexión
+- [x] `res._db` referencia a la conexión, privada.
+- [x] `res.badPetition` para estandarizar los resultados de peticiones incorrectas [WIP] 
 
 ## Modelos
 Para facilitar la comprobación de datos de los usuarios, el módulo models ofrece funciones para comprobar la corrección del input de modo que si hubiera que cambiar algún modelo, el cambio sería invisible para la app y focalizado en el módulo
 
 ### TODOs
-[ ] Posts
-[ ] Subs
-[ ] Comentarios
-[ ] Obtener tokens de usuario
-[ ] Subs privados
-[ ] Mensajería
-[ ] scopes?
-[ ] Establecer bien si se borran usuarios, no, y esas cosas.
-[ ] Moderación de subs, pero bien hecha.
-[ ] Logs de moderación per-sub
+- [ ] Posts
+- [ ] Subs
+- [ ] Comentarios
+- [ ] Obtener tokens de usuario
+- [ ] Subs privados
+- [ ] Mensajería
+- [ ] scopes?
+- [ ] Establecer bien si se borran usuarios, no, y esas cosas.
+- [ ] Moderación de subs, pero bien hecha.
+- [ ] Logs de moderación per-sub
 
 ### Otras cosas random del bloc de notas
 
