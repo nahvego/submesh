@@ -105,3 +105,5 @@ DUDAS:
 - Base de datos: Redudancia?
 - Idenficación: Cómo
 - Vue: Pues eso
+- Cómo puedo sincronizar la exportación de la base de datos con los commits / merges?
+- Cómo hago unit tests de la api?
