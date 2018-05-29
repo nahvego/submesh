@@ -4,13 +4,15 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-	"test": "echo \"Error: no test specified\" && exit 1",
-	"dev": "nodemon NODE_ENV=development server.js",
-    "start": "node server.js DEBUG"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon NODE_ENV=development server.js",
+    "start": "node server.js",
+    "setup": "node setup.js"
   },
   "author": "Nahuel Verdecchia González",
   "license": "ISC",
   "dependencies": {
+    "auth-parser": "file:modules/auth-parser",
     "bcrypt": "^2.0.1",
     "cors": "^2.8.4",
     "depicts-whole-number": "^1.0.8",

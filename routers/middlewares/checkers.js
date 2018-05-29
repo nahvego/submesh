@@ -1,14 +1,36 @@
 const isInt = require('depicts-whole-number');
 const settings = require('settings');
 
-module.exports = { appChecker, authChecker, queryChecker };
+module.exports = { headerChecker, appChecker, authChecker, queryChecker };
 
+function headerChecker(req, res, next) {
+	if(req.get('Content-Type') !== "application/json")
+		return res.badPetition("noHeaders");
+	next();
+}
 
 function appChecker(req, res, next) {
 	next();
 }
 
-function authChecker(req, res, next) {
+/* Comprueba si hay un token de autorización de usuario; y si este es correcto. Actualiza req con ciertos valores:
+req.user = {
+	name: Nombre del usuario identificado
+	id: ID del usuario identificado
+	permissions: Array de permisos del usuario
+}
+*/
+async function authChecker(req, res, next) {
+	let obj = {};
+	let check = await require('auth-parser')(req, obj);
+	if(!check) {
+		return res.badPetition("forbidden", obj);
+	}
+
+	req.user = obj;
+
+	return res.json(req.user);
+
 	next();
 }
 
