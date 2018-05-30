@@ -21,7 +21,7 @@ ENDPOINTS:
 Modelos que usamos:
 */
 const settings = require('settings');
-const newUserModel = ['name', 'email', 'password']; // Nuevo usuario
+const newUserRequired = ['name', 'email', 'password']; // Nuevo usuario
 const publicUserModel = ["id", "name", "description", "avatar", "creationDate"]; // Output 
 const privateUserModel = ["id", "name", "email", "description", "avatar", "creationDate"]; // Output personal
 
@@ -47,6 +47,7 @@ router.post('/', checkInsertIntegrity);
 router.post('/', checkUsedData);
 
 router.put('/:user', checkFieldsValidity)
+router.put('/:user', checkUsedData);
 
 router.post('/', encryptPassword);
 router.put('/:user', encryptPassword);
@@ -90,7 +91,7 @@ async function checkPermissions(req, res, next) {
 
 function checkInsertIntegrity(req, res, next) {
 
-	let c = checkModel(req.body, 'user', newUserModel);
+	let c = checkModel(req.body, 'user', newUserRequired);
 	
 	if(!c.result)
 		return res.badPetition("malformedRequest", { errors: c.errors })
@@ -99,7 +100,19 @@ function checkInsertIntegrity(req, res, next) {
 
 // Comprueba si el email o el nombre está en uso
 async function checkUsedData(req, res, next) {
-	let q = await req.db.query("SELECT name, email FROM `users` WHERE name = ? OR email = ?", [req.body.name, req.body.email]);
+	// A lo mejor no hay name *Y* email (edit), así que bueno, se comprueba uno solo
+	let checks = [];
+	let data = [];
+	if(req.body.name !== undefined) {
+		checks.push("name = ?");
+		data.push(req.body.name);
+	}
+	if(req.body.email !== undefined) {
+		checks.push("email = ?");
+		data.push(req.body.email);
+	}
+
+	let q = await req.db.query("SELECT name, email FROM `users` WHERE " + checks.join(" OR "), data);
 	if(null !== q)
 		return res.badPetition((q[0].name === req.body.name ? "nameExists" : "emailExists"));
 	next();

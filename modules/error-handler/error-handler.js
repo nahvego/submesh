@@ -19,6 +19,7 @@ Errors es un objeto cuyas claves son identificadores de posibles errores con val
 [2]: Código HTTP a devolver
 */
 const errors = {
+	// TODO: Rehacer errores
     "noId": [0, "ID inexistente", codes.NOT_FOUND],
     "noSuchUser": [1, "No existe el usuario", codes.NOT_FOUND],
     "invalidID": [4, "La ID no es válida", codes.BAD_REQUEST],
@@ -43,7 +44,13 @@ const errors = {
 	"genericServerError": [500, "Error de servidor", codes.INTERNAL_ERROR],
 	
 	"dbConnection": [550, "No se pudo conectar a la base de datos", codes.INTERNAL_ERROR],
-	"malformedRequest": [400, "Petición incorrecta", codes.BAD_REQUEST]
+	"malformedRequest": [400, "Petición incorrecta", codes.BAD_REQUEST],
+
+	// Errores sobre users: 1XXX
+	// Errores sobre subs: 2XXX
+	"noSuchSub": [2000, "No existe el sub", codes.BAD_REQUEST],
+	"invalidSubname": [2001, "Nombre de sub no válido", codes.BAD_REQUEST],
+	"subExists": [2002, "El identificador URL del sub ya está en uso", codes.BAD_REQUEST]
 };
 
 /*

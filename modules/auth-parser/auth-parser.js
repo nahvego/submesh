@@ -40,6 +40,7 @@ module.exports = async function(req, result) {
 		return false;
 	}
 
+	//TODO: Añadir permisos DEL SUB, SI PROCEDE
 	//let q = await req.db.query("SELECT id, name FROM `users` JOIN tokens ON tokens.userID = users.id WHERE users.id = ? AND token = ?", data);
 	let q = await req.db.query(
 		"SELECT users.id, users.name AS name, GROUP_CONCAT(DISTINCT role_permissions.permissionCode SEPARATOR ',') AS perms, " +
