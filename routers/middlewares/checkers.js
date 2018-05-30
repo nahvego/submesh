@@ -29,7 +29,7 @@ async function authChecker(req, res, next) {
 
 	req.user = obj;
 
-	return res.json(req.user);
+	//return res.json(req.user);
 
 	next();
 }

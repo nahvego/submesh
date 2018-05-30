@@ -25,7 +25,12 @@ const validators = {
 	maxLength: function(max, min) { return this.length <= max && this.length >= (min || 0); },
 	username: function() { return !/^[0-9]+$/.test(this) && /^[a-zA-Z0-9_-]{3,15}$/.test(this); },
 	description: function() { return validators.maxLength.call(this, 200); },
-	avatar: function() { return require('is-image-url')(this, false); }
+	avatar: function() { return require('is-image-url')(this, false); },
+	email: function() { return require('email-validator').validate(this) },
+
+	subName: function() { return /^[a-zA-Z0-9_-]{3,40}$/.test(this); },
+	subUrlname: function() { return  !/^[0-9]+$/.test(this) && /^[a-z0-9-]{3,20}$/.test(this);},
+	subDescription: function() { return /^.{5,500}$/.test(this) }
 }
 
 const ERRTYPES = {
@@ -38,7 +43,7 @@ const ERRTYPES = {
 una función de validación */
 // Los modelos con formato array son para output y dfeben ser parseados la función propia toString
 let userEdit = {
-	email: function() { return require('email-validator').validate(this) },
+	email: validators.email,
 	password: validators.valid,
 	description: validators.description,
 	avatar: validators.avatar
@@ -46,9 +51,19 @@ let userEdit = {
 let user = Object.assign({}, userEdit);
 user.name = validators.username;
 
+let subEdit = {
+	name: validators.subName,
+	description: validators.subDescription
+}
+let sub = Object.assign({}, subEdit);
+sub.urlname = validators.subUrlname;
+
 const models = Object.freeze({
 	user,
-	userEdit
+	userEdit,
+
+	sub,
+	subEdit
 });
 
 module.exports = integrityChecker;
