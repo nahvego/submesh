@@ -53,7 +53,11 @@ const errors = {
 	"subExists": [2002, "El identificador URL del sub ya está en uso", codes.BAD_REQUEST],
 	// Errores sobre posts: 3XXX
 	"noSuchPost": [3000, "El post no existe", codes.BAD_REQUEST],
-	"incorrectSubForGivenPost": [3001, "El post no corresponde al sub proporcionado", codes.BAD_REQUEST]
+	"incorrectSubForGivenPost": [3001, "El post no corresponde al sub proporcionado", codes.BAD_REQUEST],
+
+	"incompatibleOptionFromID": [410, "La opción <fromID> no es compatible con esta petición"],
+	"incompatibleOptionCount": [411, "La opción <count> no es compatible con esta petición"],
+	"incompatibleOptionComments": [412, "La opción <include_comments> no es compatible con esta petición"],
 };
 
 /*

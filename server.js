@@ -6,6 +6,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
+const badPetition = require('error-handler');
 
 const mainRouter = require('./routers/index.js');
 
@@ -24,19 +25,19 @@ app.use(morgan('combined'));
 app.use('/api', bodyParser.json());
 
 // Checkeo de posible error de bodyparser.
-/* TODO: Rehacer esto
+
 app.use(function(error, req, res, next) {
     if(error) {
         if(error instanceof SyntaxError) {
-            badPetition.call(res, "invalidJSON");
+            res.status(400).json({"msg": "Invalid JSON syntax"});
         } else {
-			badPetition.call(res, "genericServerError");
+            res.status(500).json({"msg": "Unknown server error"});
 		}
     } else {
 		next();
 	}
 });
-*/
+
 
 app.set('connManager', new ConnectionManager(settings.dbSettings));
 

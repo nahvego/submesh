@@ -33,7 +33,8 @@ const validators = {
 	subDescription: function() { return this.length >= 5 && this.length <= 500; },
 
 	postTitle: function() { return this.length >= 5 && this.length <= 50; },
-	postContent: function() { return this.length > 20; }
+	postContent: function() { return this.length > 10; },
+	postLink: function() { return this.length < 255 && require('is-http-url')(this); }
 }
 
 const ERRTYPES = {
@@ -61,10 +62,12 @@ let subEdit = {
 let sub = Object.assign({}, subEdit);
 sub.urlname = validators.subUrlname;
 
-let post = {
+let postEdit = {
 	title: validators.postTitle,
 	content: validators.postContent
 }
+let post = Object.assign({}, postEdit);
+post.link = validators.postLink;
 
 const models = Object.freeze({
 	user,
@@ -73,7 +76,8 @@ const models = Object.freeze({
 	sub,
 	subEdit,
 
-	post
+	post,
+	postEdit
 });
 
 module.exports = integrityChecker;

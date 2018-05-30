@@ -61,6 +61,10 @@ function queryChecker(req, res, next) {
 		if(parseInt(req.query.fromID) > 0) obj.fromID = req.query.fromID
 	}
 
+	if(req.query.include_comments !== undefined && Boolean(req.query.include_comments)) {
+		obj.includeComments = true;
+	}
+
 	req.options = obj;
 
 	next();
