@@ -141,7 +141,6 @@ async function getPost(req, res) {
 	// TODO: Get_comments
 	let q = await req.db.query(buildPostQuery(req), [req.sub.id, req.params.post]);
 
-	console.log(q[0].creationDate instanceof Date)
 	res.json(q[0]);
 
 	// TODO: INCLUDE POSTS
