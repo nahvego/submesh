@@ -29,8 +29,11 @@ const validators = {
 	email: function() { return require('email-validator').validate(this) },
 
 	subName: function() { return /^[a-zA-Z0-9_-]{3,40}$/.test(this); },
-	subUrlname: function() { return  !/^[0-9]+$/.test(this) && /^[a-z0-9-]{3,20}$/.test(this);},
-	subDescription: function() { return /^.{5,500}$/.test(this) }
+	subUrlname: function() { return  "posts" != this && !/^[0-9]+$/.test(this) && /^[a-z0-9-]{3,20}$/.test(this);},
+	subDescription: function() { return this.length >= 5 && this.length <= 500; },
+
+	postTitle: function() { return this.length >= 5 && this.length <= 50; },
+	postContent: function() { return this.length > 20; }
 }
 
 const ERRTYPES = {
@@ -58,12 +61,19 @@ let subEdit = {
 let sub = Object.assign({}, subEdit);
 sub.urlname = validators.subUrlname;
 
+let post = {
+	title: validators.postTitle,
+	content: validators.postContent
+}
+
 const models = Object.freeze({
 	user,
 	userEdit,
 
 	sub,
-	subEdit
+	subEdit,
+
+	post
 });
 
 module.exports = integrityChecker;

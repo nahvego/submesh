@@ -50,7 +50,10 @@ const errors = {
 	// Errores sobre subs: 2XXX
 	"noSuchSub": [2000, "No existe el sub", codes.BAD_REQUEST],
 	"invalidSubname": [2001, "Nombre de sub no válido", codes.BAD_REQUEST],
-	"subExists": [2002, "El identificador URL del sub ya está en uso", codes.BAD_REQUEST]
+	"subExists": [2002, "El identificador URL del sub ya está en uso", codes.BAD_REQUEST],
+	// Errores sobre posts: 3XXX
+	"noSuchPost": [3000, "El post no existe", codes.BAD_REQUEST],
+	"incorrectSubForGivenPost": [3001, "El post no corresponde al sub proporcionado", codes.BAD_REQUEST]
 };
 
 /*
@@ -62,7 +65,7 @@ function badPetition(errStr, additional) {
 	this.releaseDB();
 
 	if(additional !== undefined && typeof additional === "number") {
-		genericError(errStr, additional)
+		genericError.call(this, errStr, additional)
 	} else {
 		let e = buildError(errStr);
 		if(additional !== undefined) {
@@ -80,7 +83,7 @@ function badPetition(errStr, additional) {
 // Error de programación
 function genericError(errorString, httpCode) {
     this.status(((Number.isInteger(httpCode) && httpCode) || codes.INTERNAL_ERROR));
-    this.json({error:errorString});
+    this._json({error:errorString});
 }
 
 function buildError(errStr) {

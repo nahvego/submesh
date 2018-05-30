@@ -72,6 +72,12 @@ El objeto response también se modifica
 ## Modelos
 Para facilitar la comprobación de datos de los usuarios, el módulo models ofrece funciones para comprobar la corrección del input de modo que si hubiera que cambiar algún modelo, el cambio sería invisible para la app y focalizado en el módulo
 
+# Consideraciones
+- Los usuarios tienen dos modelos "out": Privado y público
+- Los sub pueden incluir una lista de posts (TODO:)
+- Los post incluyen NOMBRE del autor, número de comentarios, puntuación y %upvotes. Pueden incluir lista de comentarios
+  - En las listas NO incluyen CONTENT.
+
 ### TODOs
 - [ ] Posts
 - [ ] Subs
