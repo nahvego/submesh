@@ -59,6 +59,7 @@ req.user = {
 ```
 - [x] Conexión a la conexión de la petición en `req.db`
 - [x] La función `isAllowedTo(permissionCode [, user]` en `req.isAllowedTo` para comprobar acceso
+- [x] Al entrar a través de /subs/:sub se añade `req.sub` con id y urlname
 - [ ] Otros datos como el sub cuando se entra en posts, etc se guardarán en la request
 
 ## Response

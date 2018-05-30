@@ -23,6 +23,7 @@ module.exports = router;
 // Middlewares
 router.use(checkPermissions);
 router.use('/:sub', checkSubValidity);
+// CHECKSUBVALIDITY DEBE ENCARGARSE AGREGAR req.sub!!!!
 
 router.post('/', checkInsertIntegrity);
 router.post('/', checkUsedData);
@@ -52,10 +53,11 @@ async function checkSubValidity(req, res, next) {
 		return res.badPetition("invalidSubname");
 	}
 
-	let q = await req.db.query("SELECT id FROM `subs` WHERE urlname = ?", req.params.sub);
+	let q = await req.db.query("SELECT id, urlname FROM `subs` WHERE urlname = ?", req.params.sub);
 	if(null === q)
 		return res.badPetition("noSuchSub");
 
+	req.sub = q[0];
 	next();
 }
 
