@@ -4,12 +4,14 @@ const conn = mysql.createConnection(require('settings').dbSettings);
 function test(obj) {
 	let data = [6, 'tokensito'];
 	conn.query(
-		"SELECT users.id, users.name AS name, GROUP_CONCAT(DISTINCT role_permissions.permissionCode SEPARATOR ',') AS perms, " +
-		"roles.name AS role, roles.color AS roleColor, roles.badge AS roleBadge FROM `users` " +
-		"JOIN tokens ON tokens.userID = users.id " +
-		"LEFT JOIN roles ON users.roleID = roles.id " +
-		"LEFT JOIN role_permissions ON roles.id = role_permissions.roleID " +
-		"WHERE users.id = ? AND token = ? GROUP BY users.id "
+		"" +
+		"SELECT comments.*, users.name AS authorName, IFNULL(votes.score, 0) AS score, " +
+		"COUNT(DISTINCTROW comments.id) AS commentCount, IFNULL(COUNT(DISTINCT just_upvotes.id)*100/totalVotes, 0) AS upvotePercentage FROM `posts` " + 
+		"LEFT JOIN `users` ON posts.authorID = users.id " +
+		"LEFT JOIN `comments` ON posts.id = comments.postID " +
+		"LEFT JOIN (SELECT postID, SUM(value) AS score, COUNT(*) AS totalVotes FROM `post_votes` GROUP BY postID) votes ON posts.id = votes.postID " +
+		"LEFT JOIN `post_votes` AS just_upvotes ON posts.id = just_upvotes.postID AND just_upvotes.value > 0 " + 
+		"GROUP BY posts.id ORDER BY posts.id DESC LIMIT 20"
 	, data, function(err, result, fields) {
 		if(result == null) {
 			obj.msg = "NULL";
@@ -20,11 +22,6 @@ function test(obj) {
 			//console.log(typeof obj, a, result[0][a]);
 			obj[a] = result[0][a];
 		}
-		if(obj.perms != null)
-			obj.permissions = obj.perms.split(',');
-		else
-			obj.permissions = [];
-		delete obj.perms
 	});
 }
 

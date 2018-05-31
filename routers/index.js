@@ -24,7 +24,7 @@ router.use(queryChecker);
 
 router.use('/subs', require('./subs.js'));
 router.use('/subs/:sub/posts', require('./posts.js'));
-router.use('/subs/:sub/:post/:comment', require('./comments.js'));
+router.use('/subs/:sub/:post/comments', require('./comments.js'));
 
 router.use('/users', require('./users.js'));
 
