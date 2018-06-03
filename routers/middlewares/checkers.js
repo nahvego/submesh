@@ -27,7 +27,8 @@ async function authChecker(req, res, next) {
 		return res.badPetition("forbidden", obj);
 	}
 
-	req.user = obj;
+	if(Object.keys(obj).length !== 0) // SOLO SI ESTÁ LOGUEADO
+		req.user = obj;
 
 	//return res.json(req.user);
 
