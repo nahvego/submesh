@@ -49,13 +49,10 @@ function checkPermissions(req, res, next) {
 	next();
 }
 
-function checkCommentValidity(req, res, next) {
-	let q = req.db.query("SELECT id, subID, postID FROM `comments` WHERE id = ?", [req.params.comment]);
+async function checkCommentValidity(req, res, next) {
+	let q = await req.db.query("SELECT id, postID FROM `comments` WHERE id = ?", [req.params.comment]);
 	if(null === q)
 		return res.badPetition("noSuchComment");
-
-	if(q[0].subID != req.sub.id)
-		return res.badPetition("incorrectSubForGivenComment");
 
 	if(q[0].postID != req.post.id)
 		return res.badPetition("incorrectPostForGivenComment");
@@ -63,7 +60,7 @@ function checkCommentValidity(req, res, next) {
 	next();
 }
 
-function checkCommentInsertIntegrity(req, res, next) {
+async function checkCommentInsertIntegrity(req, res, next) {
 
 	let c = checkModel(req.body, 'comment', ['content']);
 	
@@ -71,7 +68,7 @@ function checkCommentInsertIntegrity(req, res, next) {
 		return res.badPetition("malformedRequest", { errors: c.errors });
 
 	if(req.body.replyTo !== undefined) {
-		let q = req.db.query("SELECT id FROM `comments` WHERE id = ? AND subID = ? AND postID = ? LIMIT 1", [req.body.replyTo, req.sub.id, req.post.id]);
+		let q = await req.db.query("SELECT id FROM `comments` WHERE id = ? AND postID = ? LIMIT 1", [req.body.replyTo, req.post.id]);
 		if(null === q)
 			return res.badPetition("invalidReplyTo");
 	}
@@ -80,7 +77,7 @@ function checkCommentInsertIntegrity(req, res, next) {
 
 function checkCommentUpdateIntegrity(req, res, next) {
 	
-	let c = checkModel(req.body, 'comment');
+	let c = checkModel(req.body, 'commentEdit');
 
 	if(!c.result)
 		return res.badPetition("malformedRequest", {errors: c.errors });
@@ -92,39 +89,44 @@ function checkCommentUpdateIntegrity(req, res, next) {
 // Funciones /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function getCommentList(req, res) {
+async function getCommentList(req, res) {
 
-	let q = req.db.query("SELECT * FROM `comments` WHERE postID = ? ORDER BY id DESC LIMIT " + req.options.count, [req.post.id]);
-	res.json(q);
+	let q = await req.db.query("SELECT * FROM `comments` WHERE postID = ? ORDER BY id DESC LIMIT " + req.options.count, [req.post.id]);
+	console.log(q);
+	res.json(q || []);
 }
 
-function getComment(req, res) {
+async function getComment(req, res) {
 	// include_replies? deep? replies_count?
 
-	let q = req.db.query("SELECT * FROM `comments` WHERE id = ?", [req.params.comment]);
+	let q = await req.db.query("SELECT * FROM `comments` WHERE id = ?", [req.params.comment]);
 	res.json(q[0]);
 }
 
-function addComment(req, res) {
+async function addComment(req, res) {
 
-	let ins = req.db.query("INSERT INTO `comments` SET ?", req.body);
-	let get = req.db.query("SELECT * FROM `comments` WHERE id = ? ", [ins.insertId]);
+	req.body.authorID = req.user.id;
+	req.body.postID = req.post.id;
 
-	res.json(get[0]);
-}
-
-function editComment(req, res) {
-
-	let ins = req.db.query("UPDATE `comments` SET ? WHERE id = ?", [req.body, req.params.comment]);
-	let get = req.db.query("SELECT * FROM `comments` WHERE id = ? ", [req.params.comment]);
+	let ins = await req.db.query("INSERT INTO `comments` SET ?", req.body);
+	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ? ", [ins.insertId]);
 
 	res.json(get[0]);
 }
 
-function removeComment(req, res) {
+async function editComment(req, res) {
 
-	let get = req.db.query("SELECT * FROM `comments` WHERE id = ? ", [req.params.comment]);
-	let ins = req.db.query("DELETE FROM `comments` WHERE id = ?", [req.params.comment]);
+	let ins = await req.db.query("UPDATE `comments` SET ? WHERE id = ?", [req.body, req.params.comment]);
+	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ? ", [req.params.comment]);
+
+	res.json(get[0]);
+}
+
+// TODO: Usar una transaction aquí
+async function removeComment(req, res) {
+
+	let get = await req.db.query("SELECT comments.*, IFNULL(COUNT(replies.id), 0) AS deletedReplies FROM `comments` LEFT JOIN `comments` replies ON replies.replyTo = comments.id WHERE comments.id = ? GROUP BY comments.id", [req.params.comment]);
+	await req.db.query("DELETE FROM `comments` WHERE id = ?", [req.params.comment]);
 
 	res.json(get[0]);
 }

@@ -149,7 +149,7 @@ function checkPostUpdateIntegrity(req, res, next) {
 async function getPostList(req, res) {
 	let q = await req.db.query(buildPostQuery(req), [req.sub.id]);
 
-	res.json(q);
+	res.json(q || []);
 
 }
 

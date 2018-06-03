@@ -58,8 +58,9 @@ async function checkSubValidity(req, res, next) {
 	if(req.user === undefined) {
 		q = await req.db.query("SELECT id, urlname FROM `subs` WHERE urlname = ?", req.params.sub);
 	} else {
-		q = await req.db.query("SELECT subs.id, subs.urlname, subscriptions.id AS isSubbed FROM `subs` LEFT JOIN `subscriptions` ON subscriptions.subID = subs.id WHERE subs.urlname = ? AND subscriptions.userID = ?", [req.params.sub, req.user.id]);
+		q = await req.db.query("SELECT subs.id, subs.urlname, subscriptions.id AS isSubbed FROM `subs` LEFT JOIN `subscriptions` ON subscriptions.subID = subs.id AND subscriptions.userID = ? WHERE subs.urlname = ?", [req.user.id, req.params.sub]);
 	}
+	
 	if(null === q)
 		return res.badPetition("noSuchSub");
 
