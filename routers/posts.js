@@ -53,7 +53,7 @@ const buildPostQuery = function(req) {
 
 // Middlewares
 router.use(checkPermissions);
-router.use('/:post', checkPostValidity);
+router.use('/:post', checkPostValidity); // incluye req.post y req.isAuthor? Maybe?
 
 router.get('/', validatePostListOptions);
 router.get('/:post', validateSinglePostOptions);

@@ -19,13 +19,13 @@ Params:
 (in) req: request provisto por HTTP
 (out) result: objeto al que escribir el resultado
 
-returns boolean
+returns boolean: El valor de retorno indica si debe cortarse la petición o no. Una petición sin identificación debe devolver TRUE con un obj vacío
 */
 module.exports = async function(req, result) {
 	let header = req.get('Authorization');
 	if(header === undefined) {
-		result.msg = "No Authorization header";
-		return false;
+		result = {}; // Esto es syntactic sugar porque realmente no hace nada
+		return true;
 	}
 	
 	let parts = header.split(' ');

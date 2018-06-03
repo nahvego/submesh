@@ -24,6 +24,7 @@ module.exports = router;
 router.use(checkPermissions);
 router.use('/:sub', checkSubValidity);
 // CHECKSUBVALIDITY DEBE ENCARGARSE AGREGAR req.sub!!!!
+// req.sub debe incluir un req.sub.isSubbed: boolean
 
 router.post('/', checkInsertIntegrity);
 router.post('/', checkUsedData);
@@ -53,11 +54,18 @@ async function checkSubValidity(req, res, next) {
 		return res.badPetition("invalidSubname");
 	}
 
-	let q = await req.db.query("SELECT id, urlname FROM `subs` WHERE urlname = ?", req.params.sub);
+	let q;
+	if(req.user === undefined) {
+		q = await req.db.query("SELECT id, urlname FROM `subs` WHERE urlname = ?", req.params.sub);
+	} else {
+		q = await req.db.query("SELECT subs.id, subs.urlname, subscriptions.id AS isSubbed FROM `subs` LEFT JOIN `subscriptions` ON subscriptions.subID = subs.id WHERE subs.urlname = ? AND subscriptions.userID = ?", [req.params.sub, req.user.id]);
+	}
 	if(null === q)
 		return res.badPetition("noSuchSub");
 
 	req.sub = q[0];
+	req.sub.isSubbed = (req.sub.isSubbed || null) !== null;
+
 	next();
 }
 

@@ -34,7 +34,9 @@ const validators = {
 
 	postTitle: function() { return this.length >= 5 && this.length <= 50; },
 	postContent: function() { return this.length > 10; },
-	postLink: function() { return this.length < 255 && require('is-http-url')(this); }
+	postLink: function() { return this.length < 255 && require('is-http-url')(this); },
+
+	commentContent: function() { return this.length > 1; }
 }
 
 const ERRTYPES = {
@@ -69,6 +71,12 @@ let postEdit = {
 let post = Object.assign({}, postEdit);
 post.link = validators.postLink;
 
+let commentEdit = {
+	content: validators.commentContent
+}
+let comment = Object.assign({}, commentEdit);
+comment.replyTo = validators.valid;
+
 const models = Object.freeze({
 	user,
 	userEdit,
@@ -77,7 +85,10 @@ const models = Object.freeze({
 	subEdit,
 
 	post,
-	postEdit
+	postEdit,
+
+	comment,
+	commentEdit
 });
 
 module.exports = integrityChecker;

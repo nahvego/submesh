@@ -54,10 +54,17 @@ const errors = {
 	// Errores sobre posts: 3XXX
 	"noSuchPost": [3000, "El post no existe", codes.BAD_REQUEST],
 	"incorrectSubForGivenPost": [3001, "El post no corresponde al sub proporcionado", codes.BAD_REQUEST],
+	// Errores osbre comments: 4XXX
+	"noSuchComment": [4000, "El comentario no existe", codes.BAD_REQUEST],
+	"incorrectSubForGivenComment": [3001, "El comentario no corresponde al sub proporcionado", codes.BAD_REQUEST],
+	"incorrectPostForGivenComment": [3001, "El comentario no corresponde al post proporcionado", codes.BAD_REQUEST],
 
-	"incompatibleOptionFromID": [410, "La opción <fromID> no es compatible con esta petición"],
-	"incompatibleOptionCount": [411, "La opción <count> no es compatible con esta petición"],
-	"incompatibleOptionComments": [412, "La opción <include_comments> no es compatible con esta petición"],
+	"incompatibleOptionFromID": [410, "La opción <fromID> no es compatible con esta petición", codes.BAD_REQUEST],
+	"incompatibleOptionCount": [411, "La opción <count> no es compatible con esta petición", codes.BAD_REQUEST],
+	"incompatibleOptionComments": [412, "La opción <include_comments> no es compatible con esta petición", codes.BAD_REQUEST],
+	"invalidReplyTo": [413, "El comentario al que quieres responder no es válido", codes.BAD_REQUEST],
+
+	"mustBeSubbed": [450, "Debes estar suscrito al sub para realizar esta acción", codes.FORBIDDEN]
 };
 
 /*
