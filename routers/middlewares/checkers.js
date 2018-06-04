@@ -24,14 +24,18 @@ async function authChecker(req, res, next) {
 	let obj = {};
 	let check = await require('auth-parser')(req, obj);
 	if(!check) {
-		return res.badPetition("forbidden", obj);
+		if(obj.code !== undefined) {
+			return res.badPetition(obj.msg, obj.code)
+		} else {
+			return res.badPetition("forbidden", obj);
+		}
 	}
 
 	if(Object.keys(obj).length !== 0) // SOLO SI ESTÁ LOGUEADO
 		req.user = obj;
 
 	//return res.json(req.user);
-
+	console.log(req.user);
 	next();
 }
 

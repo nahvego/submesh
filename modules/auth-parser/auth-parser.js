@@ -29,14 +29,8 @@ module.exports = async function(req, result) {
 	}
 	
 	let parts = header.split(' ');
-	if(parts.length != 2 || parts[0] != "SMB") {
-		result.msg = "Incorrect Authorization header syntax. Must be \"SMB [base64info]\"";
-		return false;
-	}
-
-	let data = Buffer.from(parts[1], 'base64').toString().split('=');
-	if(data.length != 2 || !require('depicts-whole-number')(data[0])) {
-		result.msg = "Incorrect Authorization header syntax. Encoded info must be userID=token\"";
+	if(parts.length != 2 || parts[0] != "Bearer") {
+		result.msg = "Incorrect Authorization header syntax. Must be \"Bearer [token]\"";
 		return false;
 	}
 
@@ -44,15 +38,21 @@ module.exports = async function(req, result) {
 	//let q = await req.db.query("SELECT id, name FROM `users` JOIN tokens ON tokens.userID = users.id WHERE users.id = ? AND token = ?", data);
 	let q = await req.db.query(
 		"SELECT users.id, users.name AS name, GROUP_CONCAT(DISTINCT role_permissions.permissionCode SEPARATOR ',') AS perms, " +
-		"roles.name AS role, roles.color AS roleColor, roles.badge AS roleBadge FROM `users` " +
+		"roles.name AS role, roles.color AS roleColor, roles.badge AS roleBadge, tokens.expirationDate AS expires FROM `users` " +
 		"JOIN tokens ON tokens.userID = users.id " +
 		"LEFT JOIN roles ON users.roleID = roles.id " +
 		"LEFT JOIN role_permissions ON roles.id = role_permissions.roleID " +
-		"WHERE users.id = ? AND token = ? GROUP BY users.id "
-	, data);
+		"WHERE token = ? GROUP BY users.id "
+	, parts[1]);
 	if(q == null) {
-		result.msg = "Access denied";
+		result.msg = "Incorrect credentials";
 		return false;
+	} else if(new Date() > q[0].expires) {
+		result.code = 401;
+		result.msg = "Token expired";
+		return false;
+	} else {
+		delete q[0].expires;
 	}
 
 	// Todo correcto
