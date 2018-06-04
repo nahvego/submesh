@@ -81,16 +81,13 @@ Para facilitar la comprobación de datos de los usuarios, el módulo models ofre
   - En las listas NO incluyen CONTENT.
 
 ### TODOs
-- [ ] Posts
-- [ ] Subs
-- [ ] Comentarios
-- [ ] Obtener tokens de usuario
 - [ ] Subs privados
 - [ ] Mensajería
 - [ ] scopes?
 - [ ] Establecer bien si se borran usuarios, no, y esas cosas.
 - [ ] Moderación de subs, pero bien hecha.
 - [ ] Logs de moderación per-sub
+- [ ] Qué hacer con los subs sin suscriptores
 
 ### Otras cosas random del bloc de notas
 

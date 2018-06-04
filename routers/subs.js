@@ -50,6 +50,14 @@ router.put('/:sub', editSub);
 
 router.delete('/:sub', removeSub);
 
+router.post('/:sub/subscriptions', checkLoggedIn);
+router.post('/:sub/subscriptions', checkNotSubbed);
+router.post('/:sub/subscriptions', subscribe);
+
+router.delete('/:sub/subscriptions', checkLoggedIn);
+router.delete('/:sub/subscriptions', checkSubbed);
+router.delete('/:sub/subscriptions', unsubscribe)
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +80,20 @@ function checkPermissionsEditSub(req, res, next) {
 function checkPermissionsDeleteSub(req, res, next) {
 	if(!req.isAllowedTo('delete-subs'))
 		return res.badPetition('forbidden');
+	next();
+}
+
+function checkSubbed(req, res, next) {
+	if(!req.sub.isSubbed)
+		return res.badPetition("mustBeSubbed");
+
+	next();
+}
+
+function checkNotSubbed(req, res, next) {
+	if(req.sub.isSubbed)
+		return res.badPetition("cantBeSubbed");
+
 	next();
 }
 
@@ -117,7 +139,6 @@ async function checkSubValidity(req, res, next) {
 }
 
 function checkInsertIntegrity(req, res, next) {
-
 	let c = checkModel(req.body, 'sub');
 	
 	if(!c.result)
@@ -180,4 +201,21 @@ async function removeSub(req, res) {
 	let get = await req.db.query("SELECT * FROM `subs` WHERE urlname = ?", [req.params.sub]);
 	let q = await req.db.query("DELETE FROM `subs` WHERE urlname = ?", [req.params.sub]);
 	res.json(get[0]);
+}
+
+async function subscribe(req, res) {
+	let insertObj = {
+		userID: req.user.id,
+		subID: req.sub.id
+	}
+	let q = await req.db.query("INSERT INTO `subscriptions` SET ?", insertObj);
+	insertObj.id = q.insertId;
+	res.json(insertObj);
+}
+
+async function unsubscribe(req, res) {
+	await req.db.query("DELETE FROM `subscriptions` WHERE subID = ? AND userID = ?", [req.sub.id, req.user.id]);
+	//let q = req.db.query("SELECT id FROM `subscriptions` WHERE subID = ? LIMIT 1", [req.sub.id]);
+	
+	res.end();
 }

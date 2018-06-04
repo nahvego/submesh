@@ -65,7 +65,8 @@ const errors = {
 	"incompatibleOptionComments": [412, "La opción <include_comments> no es compatible con esta petición", codes.BAD_REQUEST],
 	"invalidReplyTo": [413, "El comentario al que quieres responder no es válido", codes.BAD_REQUEST],
 
-	"mustBeSubbed": [450, "Debes estar suscrito al sub para realizar esta acción", codes.FORBIDDEN]
+	"mustBeSubbed": [450, "Debes estar suscrito al sub para realizar esta acción", codes.FORBIDDEN],
+	"cantBeSubbed": [451, "No puedes estar suscrito al sub para realizar esta acción", codes.FORBIDDEN]
 };
 
 /*
