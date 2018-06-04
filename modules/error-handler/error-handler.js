@@ -39,7 +39,8 @@ const errors = {
     "invalidUserToken": [102, "Token de usuario no válido", codes.FORBIDDEN],
     "notFound": [404, "Pagína no encontrada", codes.NOT_FOUND],
     "incorrectData": [402, "Datos incorrectos", codes.FORBIDDEN],
-    "forbidden": [403, "Faltan permisos", codes.FORBIDDEN],
+	"forbidden": [403, "Faltan permisos", codes.FORBIDDEN],
+	"mustBeLoggedIn": [410, "Hay que estar identificado", codes.FORBIDDEN],
     "notImplemented": [501, "No implementado", codes.NOT_IMPLEMENTED],
 	"genericServerError": [500, "Error de servidor", codes.INTERNAL_ERROR],
 	

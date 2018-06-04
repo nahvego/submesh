@@ -16,13 +16,13 @@ const router = express.Router();
 
 router.use(require('./middlewares/prepare-request.js'));
 
+router.post('/login', require('./middlewares/login.js'));
 
 router.use(headerChecker);
 router.use(appChecker);
 router.use(authChecker);
 router.use(queryChecker);
 
-router.post('/login', require('./middlewares/login.js'));
 
 router.use('/subs', require('./subs.js'));
 router.use('/subs/:sub/posts', require('./posts.js'));

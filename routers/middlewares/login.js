@@ -9,7 +9,7 @@ module.exports = async function(req, res) {
 		return res.badPetition("malformedRequest", { errors: c.errors });
 
 	let q = await req.db.query("SELECT id, password FROM `users` WHERE name = ?", [req.body.user]);
-	console.log(q);
+	
 	if(null == q)
 		return res.badPetition("forbidden", "No user");
 
