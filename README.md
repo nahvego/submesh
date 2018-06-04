@@ -8,6 +8,7 @@ Los token caducan y se puede utilizar un refresh token para renovarlo
 
 Para autenticar una petición debe usarse el header Authentication como indica el RFC 6750.
 No se permiten los otros modos de utilización indicados en el RFC por la naturaleza de la API (Header Content-Type) para el caso de uso de body parameters y por la falta de seguridad que representa el uso del token en la query-string
+De este modo se evitan CSRF
 
 ## Base de datos
 Utiliza una base de datos MySQL pero debería poder modificarse para usar cualquier otra DB si los wrappers adecuados se modifican.
