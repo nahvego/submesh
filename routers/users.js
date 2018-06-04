@@ -39,13 +39,15 @@ module.exports = router;
 // Router uses////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 // Middlewares
-router.use(checkPermissions);
-router.use('/:user', checkUserValidity);
+router.use('/:user', checkUserValidity); // Define req.editingUserID
 
 router.post('/', checkInsertIntegrity);
+router.post('/', checkUserNotLogged);
 router.post('/', checkUsedData);
 
+router.put('/:user', checkPermissionsForEditing)
 router.put('/:user', checkFieldsValidity)
 router.put('/:user', checkUsedData);
 
@@ -69,6 +71,24 @@ router.delete('/:user', removeUser)
 // Middlewares////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+function checkUserNotLogged(req, res, next) {
+	if(req.user !== undefined)
+		return res.badPetition("forbidden")
+
+	next();
+}
+
+function checkPermissionsForEditing(req, res, next) {
+	
+	if(!req.isAllowedTo('edit-users', req.editingUserID))
+		return res.badPetition("forbidden");
+	
+	next();
+}
+
+//// FIN MIDDLEWARE AUTORIZACION
+
 async function checkUserValidity(req, res, next) {
 	// Asumimos que se escapa la mierda esta no? xd
 	if(isInt(req.params.user)) {
@@ -81,11 +101,8 @@ async function checkUserValidity(req, res, next) {
 	if(null === q)
 		return res.badPetition("noSuchUser");
 
-	next();
-}
+	req.editingUserID = q[0].id
 
-async function checkPermissions(req, res, next) {
-	console.error("users.js -> checkPermissions -> Falta implementar");
 	next();
 }
 
@@ -125,7 +142,8 @@ function checkFieldsValidity(req, res, next) {
 	let c = checkModel(req.body, 'userEdit', false);
 
 	if(!c.result)
-		res.badPetition("malformedRequest", {errors: c.errors })
+		return res.badPetition("malformedRequest", {errors: c.errors })
+		
 	next();
 }
 

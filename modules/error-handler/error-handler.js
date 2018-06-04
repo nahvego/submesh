@@ -38,8 +38,8 @@ const errors = {
     "invalidKey": [100, "Clave de aplicación no válida", codes.FORBIDDEN],
     "invalidUserToken": [102, "Token de usuario no válido", codes.FORBIDDEN],
     "notFound": [404, "Pagína no encontrada", codes.NOT_FOUND],
-    "forbidden": [401, "Datos incorrectos", codes.FORBIDDEN],
-    "-": [403, "Faltan permisos", codes.FORBIDDEN],
+    "incorrectData": [402, "Datos incorrectos", codes.FORBIDDEN],
+    "forbidden": [403, "Faltan permisos", codes.FORBIDDEN],
     "notImplemented": [501, "No implementado", codes.NOT_IMPLEMENTED],
 	"genericServerError": [500, "Error de servidor", codes.INTERNAL_ERROR],
 	

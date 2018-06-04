@@ -27,7 +27,7 @@ async function authChecker(req, res, next) {
 		if(obj.code !== undefined) {
 			return res.badPetition(obj.msg, obj.code)
 		} else {
-			return res.badPetition("forbidden", obj);
+			return res.badPetition("incorrectData", obj);
 		}
 	}
 
@@ -35,7 +35,7 @@ async function authChecker(req, res, next) {
 		req.user = obj;
 
 	//return res.json(req.user);
-	console.log(req.user);
+	//console.log(req.user);
 	next();
 }
 

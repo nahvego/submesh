@@ -32,5 +32,5 @@ module.exports = function(action, orIsUser) {
 		}
 	}
 
-	return req.user.permissions.indexOf(action) >= 0;
+	return this.user.permissions.indexOf(action) >= 0;
 }

@@ -1,5 +1,6 @@
 /*
 Añade req.db como conexión con la base de datos para la request actual.
+Añade req.isAllowedTo
 Añade también res.releaseDB para liberar la conexión, a esta función no habría que llamarla automaticamente
 
 Por comodidad, cambia res.json por una nueva función que cierra automáticamente la conexión.

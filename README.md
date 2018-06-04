@@ -4,9 +4,10 @@ Organizado un poco random
 
 ## Autenticación
 La autenticación requiere de la generación de tokens de login por cada usuario.
-En esta primera fase, los tokens no caducan y no hay límite ni regulación sobre ellos más allá del usuario
+Los token caducan y se puede utilizar un refresh token para renovarlo
 
-Para autenticar una petición el header Authentication debe tener la forma `SMB base64string` donde base64string es *userID=token* en base64
+Para autenticar una petición debe usarse el header Authentication como indica el RFC 6750.
+No se permiten los otros modos de utilización indicados en el RFC por la naturaleza de la API (Header Content-Type) para el caso de uso de body parameters y por la falta de seguridad que representa el uso del token en la query-string
 
 ## Base de datos
 Utiliza una base de datos MySQL pero debería poder modificarse para usar cualquier otra DB si los wrappers adecuados se modifican.
