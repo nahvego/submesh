@@ -171,8 +171,8 @@ async function getUserList(req, res) {
 }
 
 async function getUser(req, res) {
-	
-	let q = await req.db.query("SELECT ?? FROM `users` WHERE name = ?", [publicUserModel, req.params.user]);
+	let model = (req.isAllowedTo('get-full-profile', req.editingUserID) ? privateUserModel : publicUserModel);
+	let q = await req.db.query("SELECT ?? FROM `users` WHERE name = ?", [model, req.params.user]);
 	//console.log(q);
 	res.json(q[0]);
 }

@@ -19,7 +19,8 @@ module.exports = function(action, orIsUser) {
 		return false;
 
 	if(orIsUser !== undefined) {
-		if(this.user.id == orIsUser || this.user.name === orIsUser) {
+		if(typeof orIsUser === "number" || typeof orIsUser === "string") {
+			if(this.user.id == orIsUser || this.user.name === orIsUser)
 				return true;
 		} else if(orIsUser.id !== undefined) {
 			if(this.user.id == orIsUser.id) // Doble igual para que haya type coercion
