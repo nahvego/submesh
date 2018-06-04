@@ -52,8 +52,14 @@ const buildPostQuery = function(req) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Middlewares
-router.use(checkPermissions);
 router.use('/:post', checkPostValidity); // incluye req.post y req.isAuthor? Maybe?
+
+router.post('/', checkUserSubbed);
+router.put('/:post', checkUserSubbed);
+router.delete('/:post', checkUserSubbed);
+
+router.put('/:post', checkPermissionsEditPost);
+router.delete('/:post', checkPermissionsDeletePost);
 
 router.get('/', validatePostListOptions);
 router.get('/:post', validateSinglePostOptions);
@@ -78,6 +84,32 @@ router.delete('/:post', removePost);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Middlewares////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function checkUserSubbed(req, res, next) {
+	if(req.user === undefined)
+		return res.badPetition("mustBeLoggedIn");
+
+	if(!req.sub.isSubbed)
+		return res.badPetition("mustBeSubbed");
+
+	next();
+}
+
+function checkPermissionsEditPost(req, res, next) {
+	if(!req.isAllowedTo('edit-posts', req.post.authorID))
+		return res.badPetition("forbidden");
+
+	next();
+}
+
+function checkPermissionsDeletePost(req, res, next) {
+	if(!req.isAllowedTo('delete-posts', req.post.authorID))
+		return res.badPetition("forbidden");
+
+	next();
+}
+
+//// FIN PERMS ////
 
 function validateSinglePostOptions(req, res, next) {
 	
@@ -112,11 +144,6 @@ async function checkPostValidity(req, res, next) {
 		return res.badPetition("incorrectSubForGivenPost")
 
 	req.post = q[0];
-	next();
-}
-
-async function checkPermissions(req, res, next) {
-	console.error("posts.js -> checkPermissions -> Falta implementar");
 	next();
 }
 
