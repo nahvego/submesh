@@ -77,6 +77,11 @@ let commentEdit = {
 let comment = Object.assign({}, commentEdit);
 comment.replyTo = validators.valid;
 
+let login = {
+	user: validators.username,
+	password: validators.valid
+}
+
 const models = Object.freeze({
 	user,
 	userEdit,
@@ -88,7 +93,9 @@ const models = Object.freeze({
 	postEdit,
 
 	comment,
-	commentEdit
+	commentEdit,
+
+	login
 });
 
 module.exports = integrityChecker;

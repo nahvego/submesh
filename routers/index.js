@@ -22,6 +22,8 @@ router.use(appChecker);
 router.use(authChecker);
 router.use(queryChecker);
 
+router.post('/login', require('./middlewares/login.js'));
+
 router.use('/subs', require('./subs.js'));
 router.use('/subs/:sub/posts', require('./posts.js'));
 router.use('/subs/:sub/posts/:post/comments', require('./comments.js'));

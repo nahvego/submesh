@@ -11,6 +11,11 @@ module.exports = {
 
 	pwdSaltRounds: 10, // Rounds para el salt de bcrypt
 
+	auth: {
+		tokenLength: 64,
+		tokenDuration: 3600 // En s
+	},
+
 	api: {
 		max_results: 20 // Máximo de resultados por llamada (genérico)
 	}
