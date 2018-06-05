@@ -63,5 +63,8 @@ module.exports = async function(req, res, next) {
 		}
 	});
 
+	// Añadir cabeceras, TODO: rehacer
+	res.set('Cache-Control', 'no-cache');
+
 	next();
 }
