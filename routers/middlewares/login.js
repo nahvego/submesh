@@ -9,7 +9,7 @@ module.exports = async function(req, res) {
 	}
 
 	let q = await req.db.query("SELECT id, password FROM `users` WHERE name = ?", [req.body.user]);
-	
+
 	if(null === q)
 		return res.badPetition("forbiddenNoUser");
 
@@ -18,7 +18,7 @@ module.exports = async function(req, res) {
 			return res.badPetition("genericError");
 		if(!result)
 			return res.badPetition("incorrectPassword");
-		
+
 		generatePayload(req, res, {
 			id: q[0].id,
 			name: req.body.user
@@ -58,7 +58,7 @@ function generatePayload(req, res, data) {
 			userID: data.id,
 			token: buf.toString('hex', 0, settings.auth.tokenLength/2),
 			refreshToken: buf.toString('hex', settings.auth.tokenLength/2),
-			expirationDate: new Date((new Date()).getTime() + settings.auth.tokenDuration * 1000)
+			expirationDate: new Date((new Date()).getTime() + (settings.auth.tokenDuration * 1000))
 		}
 		await req.db.query("INSERT INTO `tokens` SET ?", insertObj);
 

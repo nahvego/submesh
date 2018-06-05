@@ -17,7 +17,7 @@ module.exports = {
 	},
 
 	api: {
-		max_results: 20 // Máximo de resultados por llamada (genérico)
+		maxResults: 20 // Máximo de resultados por llamada (genérico)
 	},
 
 	defaultPostImage: "https://placeimg.com/200/200/any"

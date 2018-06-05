@@ -26,7 +26,7 @@ module.exports = async function(req, result) {
 		//result = {}; // Esto es syntactic sugar porque realmente no hace nada
 		return true;
 	}
-	
+
 	let parts = header.split(' ');
 	if(parts.length != 2 || parts[0] != "Bearer") {
 		result.msg = "Incorrect Authorization header syntax. Must be \"Bearer [token]\"";
@@ -42,7 +42,8 @@ module.exports = async function(req, result) {
 		"LEFT JOIN roles ON users.roleID = roles.id " +
 		"LEFT JOIN role_permissions ON roles.id = role_permissions.roleID " +
 		"WHERE token = ? GROUP BY users.id ",
-		parts[1]);
+		parts[1]
+	);
 	if(q === null) {
 		result.msg = "Incorrect credentials";
 		return false;

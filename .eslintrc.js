@@ -53,7 +53,39 @@ module.exports = {
 		"callback-return": "error",
 		"global-require": "warn",
 		"handle-callback-err": "warn",
-		"no-buffer-constructor": "error"
+		"no-buffer-constructor": "error",
+
+
+
+		"array-bracket-newline": ["warn", "consistent"],
+		"array-bracket-spacing": ["warn", "never"],
+		"array-element-newline": ["warn", "never"],
+		"block-spacing": ["warn", "always"],
+		"brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
+		"camelcase": "warn",
+		"comma-dangle": ["warn", "only-multiline"],
+		"comma-spacing": "warn",
+		"comma-style": "warn",
+		"computed-property-spacing": "warn",
+		"consistent-this": ["warn", "self"],
+		"eol-last": "warn",
+		"func-call-spacing": "warn",
+		"function-paren-newline": ["warn", "multiline"],
+		// key-spacing
+		// keyword-spacing
+		//"new-cap" : "warn",
+		"new-parens": "warn",
+		"no-lonely-if": "warn",
+		"no-mixed-operators": "warn",
+		"no-trailing-spaces": "warn",
+		"no-unneeded-ternary": "warn",
+
+		"space-before-blocks": "warn",
+		"space-before-function-paren": ["warn", {
+			"anonymous": "never",
+			"named": "never",
+			"asyncArrow": "always"
+		}]
 
     }
 };

@@ -26,12 +26,12 @@ app.use('/api', bodyParser.json());
 app.use(function(error, req, res, next) {
 	if(error) {
 		if(error instanceof SyntaxError) {
-			res.status(400).json({"msg": "Invalid JSON syntax"});
+			return res.status(400).json({"msg": "Invalid JSON syntax"});
 		} else {
-			res.status(500).json({"msg": "Unknown server error"});
+			return res.status(500).json({"msg": "Unknown server error"});
 		}
 	} else {
-		next();
+		return next();
 	}
 });
 

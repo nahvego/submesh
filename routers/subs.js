@@ -9,7 +9,6 @@ El SUB puede referenciarse mediante ID o URLNAM
 
 const checkModel = require('models');
 const validate = require('models').validate;
-const getModelList = require('models').toString;
 
 const router = require('express').Router();
 module.exports = router;
@@ -72,40 +71,40 @@ function checkMeIsMine(req, res, next) {
 	if(req.params.sub === "me" && req.user === undefined)
 		return res.badPetition("mustBeLoggedIn");
 
-	next();
+	return next();
 }
 
 function checkLoggedIn(req, res, next) {
 	if(req.user === undefined)
 		return res.badPetition("mustBeLoggedIn");
 
-	next();
+	return next();
 }
 
 function checkPermissionsEditSub(req, res, next) {
 	if(!req.isAllowedTo('edit-subs'))
 		return res.badPetition('forbidden');
-	next();
+	return next();
 }
 
 function checkPermissionsDeleteSub(req, res, next) {
 	if(!req.isAllowedTo('delete-subs'))
 		return res.badPetition('forbidden');
-	next();
+	return next();
 }
 
 function checkSubbed(req, res, next) {
 	if(!req.sub.isSubbed)
 		return res.badPetition("mustBeSubbed");
 
-	next();
+	return next();
 }
 
 function checkNotSubbed(req, res, next) {
 	if(req.sub.isSubbed)
 		return res.badPetition("cantBeSubbed");
 
-	next();
+	return next();
 }
 
 
@@ -117,11 +116,11 @@ async function expandPermissions(req, res, next) {
 		let q = await req.db.query("SELECT GROUP_CONCAT(p.permissionCode SEPARATOR ',') AS perms FROM `subscriptions` s LEFT JOIN `sub_mod_permissions` p ON p.subscriptionID = s.id WHERE s.subID = ? AND s.userID = ? GROUP BY s.id", [req.sub.id, req.user.id]);
 		if(q !== null && q[0].perms !== null) {
 			// Array unique: https://stackoverflow.com/a/14438954
-			req.user.permissions = req.user.permissions.concat(q[0].perms.split(',')).filter((v, i, a) => a.indexOf(v) === i); 
+			req.user.permissions = req.user.permissions.concat(q[0].perms.split(',')).filter((v, i, a) => a.indexOf(v) === i);
 		}
 	}
 
-	next();
+	return next();
 }
 
 
@@ -146,25 +145,25 @@ async function checkSubValidity(req, res, next) {
 		} else {
 			q = await req.db.query("SELECT subs.id, subs.urlname, subscriptions.id AS isSubbed FROM `subs` LEFT JOIN `subscriptions` ON subscriptions.subID = subs.id AND subscriptions.userID = ? WHERE subs.urlname = ?", [req.user.id, req.params.sub]);
 		}
-		
+
 		if(null === q)
 			return res.badPetition("noSuchSub");
-	
+
 		req.sub = q[0];
 		req.sub.isSubbed = (req.sub.isSubbed || null) !== null;
 		req.sub.isAll = false;
 		req.sub.isMe = false;
 	}
 
-	next();
+	return next();
 }
 
 function checkInsertIntegrity(req, res, next) {
 	let c = checkModel(req.body, 'sub');
-	
+
 	if(!c.result)
 		return res.badPetition("malformedRequest", { errors: c.errors })
-	next();
+	return next();
 }
 
 function checkFieldsValidity(req, res, next) {
@@ -175,7 +174,7 @@ function checkFieldsValidity(req, res, next) {
 
 	if(!c.result)
 		res.badPetition("malformedRequest", {errors: c.errors })
-	next();
+	return next();
 }
 
 // Comprueba si el urlname está en uso
@@ -184,15 +183,15 @@ async function checkUsedData(req, res, next) {
 	let q = await req.db.query("SELECT id FROM `subs` WHERE urlname = ?", [req.body.urlname]);
 	if(null !== q)
 		return res.badPetition("subExists");
-		
-	next();
+
+	return next();
 }
 
 function notAll(req, res, next) {
 	if(req.params.sub === "all" ||req.params.sub === "me")
 		return res.badPetition("forbidden");
 
-	next();
+	return next();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +199,7 @@ function notAll(req, res, next) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function getSub(req, res) {
-	
+
 	let q = await req.db.query("SELECT * FROM `subs` WHERE urlname = ?", [req.params.sub]);
 
 	res.json(q[0]);
@@ -211,7 +210,7 @@ async function getSub(req, res) {
 async function addSub(req, res) {
 	let q = await req.db.query("INSERT INTO `subs` SET ?", req.body);
 	let get = await req.db.query("SELECT * FROM `subs` WHERE id = ?", [q.insertId]);
-	
+
 	// Añadir suscripción tambien
 	await req.db.query("CALL create_admin_subscription(?, ?)", [req.user.id, q.insertId])
 
@@ -243,6 +242,6 @@ async function subscribe(req, res) {
 async function unsubscribe(req, res) {
 	await req.db.query("DELETE FROM `subscriptions` WHERE subID = ? AND userID = ?", [req.sub.id, req.user.id]);
 	//let q = req.db.query("SELECT id FROM `subscriptions` WHERE subID = ? LIMIT 1", [req.sub.id]);
-	
+
 	res.end();
 }

@@ -29,11 +29,11 @@ class ConnectionManager {
 	}
 
 	getConnection() {
-		let t = this;
+		let self = this;
 		return new Promise((res, rej) => {
 			this._pool.getConnection(function(err, conn) {
 				if(err) rej(err);
-				else res(t._alterConnection(conn))
+				else res(self._alterConnection(conn))
 			});
 		})
 	}
@@ -44,7 +44,7 @@ class ConnectionManager {
 	}
 
 	_alterConnection(conn) {
-		
+
 		if(conn._query === undefined) {
 			Object.defineProperty(conn, "_query", { value: conn.query });
 			Object.defineProperties(conn, {

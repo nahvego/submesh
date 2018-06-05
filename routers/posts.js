@@ -7,8 +7,6 @@ Endpoints:
 
 const settings = require('settings');
 const checkModel = require('models');
-const validate = require('models').validate;
-const getModelList = require('models').toString;
 
 const router = require('express').Router();
 module.exports = router;
@@ -20,14 +18,14 @@ module.exports = router;
 Iteración anterior:
 return "" +
 	"SELECT posts.*, users.name AS authorName, IFNULL(votes.score, 0) AS score, " +
-	"COUNT(DISTINCTROW comments.id) AS commentCount, IFNULL(COUNT(DISTINCT just_upvotes.id)*100/totalVotes, 0) AS upvotePercentage FROM `posts` " + 
+	"COUNT(DISTINCTROW comments.id) AS commentCount, IFNULL(COUNT(DISTINCT just_upvotes.id)*100/totalVotes, 0) AS upvotePercentage FROM `posts` " +
 	"LEFT JOIN `users` ON posts.authorID = users.id " +
 	"LEFT JOIN `comments` ON posts.id = comments.postID " +
 	"LEFT JOIN (SELECT postID, SUM(value) AS score, COUNT(*) AS totalVotes FROM `post_votes` GROUP BY postID) votes ON posts.id = votes.postID " +
 	"LEFT JOIN `post_votes` AS just_upvotes ON posts.id = just_upvotes.postID AND just_upvotes.value > 0 " +
-	"WHERE posts.subID = ? " + 
-	(req.post ? "AND posts.id = ? " : "") + 
-	(req.options.fromID ? "AND posts.id < '" + req.options.fromID + "' " : "") + 
+	"WHERE posts.subID = ? " +
+	(req.post ? "AND posts.id = ? " : "") +
+	(req.options.fromID ? "AND posts.id < '" + req.options.fromID + "' " : "") +
 	"GROUP BY posts.id ORDER BY posts.id DESC LIMIT " + req.options.count;
 */
 const buildPostQuery = function(req) {
@@ -59,7 +57,7 @@ const buildPostQuery = function(req) {
 	"LEFT JOIN `comments` ON posts.id = comments.postID " +
 	"LEFT JOIN `post_votes` AS votes ON posts.id = votes.postID " +
 	"LEFT JOIN `post_votes` AS just_upvotes ON posts.id = just_upvotes.postID AND just_upvotes.value > 0 " +
-	(where.length > 0 ? "WHERE " + where.join(" AND ") + " " : "") + 
+	(where.length > 0 ? "WHERE " + where.join(" AND ") + " " : "") +
 	"GROUP BY posts.id ORDER BY posts.id DESC LIMIT " + req.options.count;
 }
 
@@ -111,7 +109,7 @@ function notAll(req, res, next) {
 	if(req.params.sub === "all")
 		return res.badPetition("forbidden");
 
-	next();
+	return next();
 }
 
 function checkUserSubbed(req, res, next) {
@@ -121,27 +119,27 @@ function checkUserSubbed(req, res, next) {
 	if(!req.sub.isSubbed)
 		return res.badPetition("mustBeSubbed");
 
-	next();
+	return next();
 }
 
 function checkPermissionsEditPost(req, res, next) {
 	if(!req.isAllowedTo('edit-posts', req.post.authorID))
 		return res.badPetition("forbidden");
 
-	next();
+	return next();
 }
 
 function checkPermissionsDeletePost(req, res, next) {
 	if(!req.isAllowedTo('delete-posts', req.post.authorID))
 		return res.badPetition("forbidden");
 
-	next();
+	return next();
 }
 
 //// FIN PERMS ////
 
 function validateSinglePostOptions(req, res, next) {
-	
+
 	if(req.options.fromID !== undefined) {
 		return res.badPetition("incompatibleOptionFromID");
 	}
@@ -153,14 +151,14 @@ function validateSinglePostOptions(req, res, next) {
 	//req.post.isSinglePost = true; // No hace falta, si hay req.post se infiere.
 	req.options.count = 1;
 
-	next();
+	return next();
 }
 function validatePostListOptions(req, res, next) {
 	if(req.options.includeComments !== undefined) {
 		return res.badPetition("incompatibleOptionComments");
 	}
 
-	next();
+	return next();
 }
 
 async function checkPostValidity(req, res, next) {
@@ -173,16 +171,16 @@ async function checkPostValidity(req, res, next) {
 		return res.badPetition("incorrectSubForGivenPost")
 
 	req.post = q[0];
-	next();
+	return next();
 }
 
 function checkPostInsertIntegrity(req, res, next) {
 
 	let c = checkModel(req.body, 'post', ["title", "content"]);
-	
+
 	if(!c.result)
 		return res.badPetition("malformedRequest", { errors: c.errors })
-	next();
+	return next();
 }
 
 function checkPostUpdateIntegrity(req, res, next) {
@@ -191,10 +189,10 @@ function checkPostUpdateIntegrity(req, res, next) {
 		return res.badPetition("malformedRequest");
 
 	let c = checkModel(req.body, 'postEdit', false);
-	
+
 	if(!c.result)
 		return res.badPetition("malformedRequest", { errors: c.errors })
-	next();
+	return next();
 }
 
 function generateImage(req, res, next) {
@@ -203,7 +201,7 @@ function generateImage(req, res, next) {
 		req.body.image = settings.defaultPostImage;
 	}
 
-	next();
+	return next();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Funciones /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -244,14 +242,14 @@ async function addPost(req, res) {
 }
 
 async function editPost(req, res) {
-	
+
 	await req.db.query("UPDATE `posts` SET ? WHERE id = ?", [req.body, req.params.post]);
 	let get = await req.db.query("SELECT * FROM `posts` WHERE id = ?", [req.params.post]);
 	res.json(get[0]);
 }
 
 async function removePost(req, res) {
-	
+
 	let get = await req.db.query("SELECT * FROM `posts` WHERE id = ?", [req.params.post]);
 	await req.db.query("DELETE FROM `posts` WHERE id = ?", [req.params.post]);
 	res.json(get[0]);

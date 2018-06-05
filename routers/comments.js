@@ -9,8 +9,6 @@ ENDPOINTS:
 */
 
 const checkModel = require('models');
-const validate = require('models').validate;
-const getModelList = require('models').toString;
 const router = require('express').Router();
 module.exports = router;
 
@@ -44,7 +42,7 @@ router.delete('/:comment', removeComment);
 
 function checkPermissions(req, res, next) {
 	console.error("comments.js -> checkPermissions -> Falta implementar");
-	next();
+	return next();
 }
 
 async function checkCommentValidity(req, res, next) {
@@ -55,13 +53,13 @@ async function checkCommentValidity(req, res, next) {
 	if(q[0].postID != req.post.id)
 		return res.badPetition("incorrectPostForGivenComment");
 
-	next();
+	return next();
 }
 
 async function checkCommentInsertIntegrity(req, res, next) {
 
 	let c = checkModel(req.body, 'comment', ['content']);
-	
+
 	if(!c.result)
 		return res.badPetition("malformedRequest", { errors: c.errors });
 
@@ -70,17 +68,17 @@ async function checkCommentInsertIntegrity(req, res, next) {
 		if(null === q)
 			return res.badPetition("invalidReplyTo");
 	}
-	next();
+	return next();
 }
 
 function checkCommentUpdateIntegrity(req, res, next) {
-	
+
 	let c = checkModel(req.body, 'commentEdit');
 
 	if(!c.result)
 		return res.badPetition("malformedRequest", {errors: c.errors });
 
-	next();
+	return next();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

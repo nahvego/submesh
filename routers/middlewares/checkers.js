@@ -51,7 +51,7 @@ function queryChecker(req, res, next) {
 	let obj = {};
 
 	if(req.query.count !== undefined) {
-		
+
 		if(!isInt(req.query.count) || req.query.count > settings.api.max_results)
 			return res.badPetition("malformedRequest", "count debe ser un entero <= " + settings.api.max_results)
 		obj.count = req.query.count;
@@ -62,7 +62,7 @@ function queryChecker(req, res, next) {
 	if(req.query.fromID !== undefined) {
 		if(!isInt(req.query.fromID))
 			return res.badPetition("malformedRequest", "fromID debe ser un entero positivo");
-		
+
 		if(parseInt(req.query.fromID) > 0) obj.fromID = req.query.fromID
 	}
 

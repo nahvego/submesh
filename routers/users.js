@@ -20,7 +20,7 @@ Modelos que usamos:
 */
 const settings = require('settings');
 const newUserRequired = ['name', 'email', 'password']; // Nuevo usuario
-const publicUserModel = ["id", "name", "description", "avatar", "creationDate"]; // Output 
+const publicUserModel = ["id", "name", "description", "avatar", "creationDate"]; // Output
 const privateUserModel = ["id", "name", "email", "description", "avatar", "creationDate"]; // Output personal
 
 const bcrypt = require('bcrypt')
@@ -74,15 +74,15 @@ function checkUserNotLogged(req, res, next) {
 	if(req.user !== undefined)
 		return res.badPetition("forbidden")
 
-	next();
+	return next();
 }
 
 function checkPermissionsForEditing(req, res, next) {
-	
+
 	if(!req.isAllowedTo('edit-users', req.editingUserID))
 		return res.badPetition("forbidden");
-	
-	next();
+
+	return next();
 }
 
 //// FIN MIDDLEWARE AUTORIZACION
@@ -101,16 +101,16 @@ async function checkUserValidity(req, res, next) {
 
 	req.editingUserID = q[0].id
 
-	next();
+	return next();
 }
 
 function checkInsertIntegrity(req, res, next) {
 
 	let c = checkModel(req.body, 'user', newUserRequired);
-	
+
 	if(!c.result)
 		return res.badPetition("malformedRequest", { errors: c.errors })
-	next();
+	return next();
 }
 
 // Comprueba si el email o el nombre está en uso
@@ -130,7 +130,7 @@ async function checkUsedData(req, res, next) {
 	let q = await req.db.query("SELECT name, email FROM `users` WHERE " + checks.join(" OR "), data);
 	if(null !== q)
 		return res.badPetition((q[0].name === req.body.name ? "nameExists" : "emailExists"));
-	next();
+	return next();
 }
 
 function checkFieldsValidity(req, res, next) {
@@ -141,15 +141,15 @@ function checkFieldsValidity(req, res, next) {
 
 	if(!c.result)
 		return res.badPetition("malformedRequest", {errors: c.errors })
-		
-	next();
+
+	return next();
 }
 
 async function encryptPassword(req, res, next) {
 	if(req.body.password !== undefined)
 		req.body.password = await bcrypt.hash(req.body.password, settings.pwdSaltRounds);
 
-	next();
+	return next();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ async function encryptPassword(req, res, next) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function getUserList(req, res) {
-	
+
 	let q;
 	if(req.options.fromID === undefined) {
 		q = await req.db.query("SELECT ?? FROM `users` ORDER BY id DESC LIMIT " + req.options.count, [publicUserModel]);

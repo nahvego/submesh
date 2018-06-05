@@ -5,10 +5,10 @@ const codes = {
 	INTERNAL_ERROR: 500,
 	BAD_REQUEST: 400,
 	NOT_FOUND: 404,
-	DELETED: 200,  
+	DELETED: 200,
 	MODIFIED: 200,
 	NOT_IMPLEMENTED: 501,
-	FORBIDDEN: 403
+	FORBIDDEN: 403,
 };
 
 /*
@@ -26,7 +26,7 @@ const errors = {
 	"invalidEmail": [6, "El email no es válido", codes.BAD_REQUEST],
 	"nameExists": [7, "Nombre en uso", codes.BAD_REQUEST],
 	"emailExists": [8, "EMail en uso", codes.BAD_REQUEST],
-	"passwordExists": [9, "%s está usando esta contraseña", codes.BAD_REQUEST], // ES BROMA ES BROMA 
+	"passwordExists": [9, "%s está usando esta contraseña", codes.BAD_REQUEST], // ES BROMA ES BROMA
 	//"noSuchPost": [20, "No existe el post con esa ID", codes.BAD_REQUEST],
 	"postNotOwned": [21, "Necesitas ser el autor", codes.FORBIDDEN],
 	//"noSuchComment": [40, "No existe el comentario con esa ID en ese post", codes.BAD_REQUEST],
@@ -42,7 +42,7 @@ const errors = {
 	"mustBeLoggedIn": [410, "Hay que estar identificado", codes.FORBIDDEN],
 	"notImplemented": [501, "No implementado", codes.NOT_IMPLEMENTED],
 	"genericServerError": [500, "Error de servidor", codes.INTERNAL_ERROR],
-	
+
 	"dbConnection": [550, "No se pudo conectar a la base de datos", codes.INTERNAL_ERROR],
 	"malformedRequest": [400, "Petición incorrecta", codes.BAD_REQUEST],
 
@@ -69,7 +69,7 @@ const errors = {
 
 	"forbiddenNoUser": [420, "No existe el usuario", codes.FORBIDDEN],
 	"incorrectPassword": [421, "Contraseña incorrecta", codes.FORBIDDEN],
-	"incorrectRefreshToken": [422, "Token de refresco no válido", codes.FORBIDDEN]
+	"incorrectRefreshToken": [422, "Token de refresco no válido", codes.FORBIDDEN],
 };
 
 /*
