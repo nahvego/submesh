@@ -6,6 +6,7 @@ Endpoints:
 
 */
 
+const settings = require('settings');
 const checkModel = require('models');
 const validate = require('models').validate;
 const getModelList = require('models').toString;
@@ -31,19 +32,28 @@ return "" +
 	"GROUP BY posts.id ORDER BY posts.id DESC LIMIT " + req.options.count;
 */
 const buildPostQuery = function(req) {
+	let where = [];
+	if(!req.sub.isAll && !req.sub.isMe)
+		where.push("posts.subID = ?");
+	if(req.sub.isMe)
+		where.push("posts.subID IN (SELECT subs.id FROM `subs` LEFT JOIN `subscriptions` s ON s.subID = subs.id WHERE s.userID = '" + req.user.id + "')")
+	if(req.post)
+		where.push("posts.id = ?");
+	if(req.options.fromID)
+		where.push("posts.id < '" + req.options.fromID + "'");
+
 	return "" +
-	"SELECT posts.*, users.name AS authorName, COUNT(DISTINCTROW comments.id) AS commentCount, " +
+	"SELECT posts.*, subs.urlname AS subUrlname, users.name AS authorName, COUNT(DISTINCTROW comments.id) AS commentCount, " +
 	"COUNT(DISTINCT votes.id) AS totalVotes, " +
 	"IFNULL(SUM(votes.value)*COUNT(DISTINCT votes.id)/COUNT(posts.id), 0) AS score, " +
 	"IFNULL(COUNT(DISTINCT just_upvotes.id)*100/COUNT(DISTINCT votes.id), 0) AS upvotePercentage " +
 	"FROM `posts` " +
+	"JOIN `subs` ON posts.subID = subs.id " +
 	"LEFT JOIN `users` ON posts.authorID = users.id " +
 	"LEFT JOIN `comments` ON posts.id = comments.postID " +
 	"LEFT JOIN `post_votes` AS votes ON posts.id = votes.postID " +
 	"LEFT JOIN `post_votes` AS just_upvotes ON posts.id = just_upvotes.postID AND just_upvotes.value > 0 " +
-	"WHERE posts.subID = ?  " +
-	(req.post ? "AND posts.id = ? " : "") + 
-	(req.options.fromID ? "AND posts.id < '" + req.options.fromID + "' " : "") + 
+	(where.length > 0 ? "WHERE " + where.join(" AND ") + " " : "") + 
 	"GROUP BY posts.id ORDER BY posts.id DESC LIMIT " + req.options.count;
 }
 
@@ -52,6 +62,10 @@ const buildPostQuery = function(req) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Middlewares
+router.post('/', notAll);
+router.use('/:post', notAll);
+// TODO: Al votar cuidado con el notAll
+
 router.use('/:post', checkPostValidity); // incluye req.post y req.isAuthor? Maybe?
 
 router.post('/', checkUserSubbed);
@@ -67,6 +81,8 @@ router.get('/:post', validateSinglePostOptions);
 
 router.post('/', checkPostInsertIntegrity);
 router.put('/:post', checkPostUpdateIntegrity);
+
+router.post('/', generateImage);
 // Endpoints
 
 router.get('/', getPostList);
@@ -84,6 +100,11 @@ router.delete('/:post', removePost);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Middlewares////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function notAll(req, res, next) {
+	if(req.params.sub === "all")
+		return res.badPetition("forbidden");
+}
 
 function checkUserSubbed(req, res, next) {
 	if(req.user === undefined)
@@ -168,13 +189,21 @@ function checkPostUpdateIntegrity(req, res, next) {
 	next();
 }
 
+function generateImage(req, res, next) {
+	//TODO: Buscar imagen en el post
+	if(req.body.image === undefined) {
+		req.body.image = settings.defaultPostImage;
+	}
+
+	next();
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Funciones /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // En los get incluir authorName, commentCount, score y upvotePercentage
 async function getPostList(req, res) {
-	let q = await req.db.query(buildPostQuery(req), [req.sub.id]);
+	let q = await req.db.query(buildPostQuery(req), (req.sub.isAll || req.sub.isMe ? null : [req.sub.id]));
 
 	res.json(q || []);
 

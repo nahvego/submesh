@@ -79,6 +79,9 @@ Para facilitar la comprobación de datos de los usuarios, el módulo models ofre
 - Los sub pueden incluir una lista de posts (TODO:)
 - Los post incluyen NOMBRE del autor, número de comentarios, puntuación y %upvotes. Pueden incluir lista de comentarios
   - En las listas NO incluyen CONTENT.
+- Para obtener los posts de all se llama a /subs/all/posts.
+- Para obtener la frontpage personal se llama a /subs/me/posts.
+  - Los métodos notAll y demás comprueban all y me, AMBOS.
 
 ### TODOs
 - [ ] Subs privados

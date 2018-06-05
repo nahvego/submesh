@@ -22,6 +22,12 @@ module.exports = router;
 
 // Middlewares
 router.use('/:sub', checkSubValidity);
+
+router.use('/:sub', checkMeIsMine);
+router.post('/', notAll);
+router.put('/:sub', notAll);
+router.delete('/:sub', notAll);
+router.use('/:sub/subscriptions', notAll);
 // CHECKSUBVALIDITY DEBE ENCARGARSE AGREGAR req.sub!!!!
 // req.sub debe incluir un req.sub.isSubbed: boolean
 
@@ -63,6 +69,13 @@ router.delete('/:sub/subscriptions', unsubscribe)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Middlewares////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function checkMeIsMine(req, res, next) {
+	if(req.params.sub === "me" && req.user === undefined)
+		return res.badPetition("mustBeLoggedIn");
+
+	next();
+}
 
 function checkLoggedIn(req, res, next) {
 	if(req.user === undefined)
@@ -118,22 +131,32 @@ async function expandPermissions(req, res, next) {
 
 async function checkSubValidity(req, res, next) {
 	// Asumimos que se escapa la mierda esta no? xd
-	if(!validate(req.params.sub, "subName")) {
+	if(req.params.sub !== "all" && req.params.sub !== "me" && !validate(req.params.sub, "subUrlname")) {
 		return res.badPetition("invalidSubname");
 	}
 
-	let q;
-	if(req.user === undefined) {
-		q = await req.db.query("SELECT id, urlname FROM `subs` WHERE urlname = ?", req.params.sub);
+	if(req.params.sub === "all" || req.params.sub === "me") {
+		req.sub = {
+			urlname: req.params.sub,
+			isAll: req.params.sub === "all",
+			isMe: req.params.sub === "me"
+		}
 	} else {
-		q = await req.db.query("SELECT subs.id, subs.urlname, subscriptions.id AS isSubbed FROM `subs` LEFT JOIN `subscriptions` ON subscriptions.subID = subs.id AND subscriptions.userID = ? WHERE subs.urlname = ?", [req.user.id, req.params.sub]);
-	}
+		let q;
+		if(req.user === undefined) {
+			q = await req.db.query("SELECT id, urlname FROM `subs` WHERE urlname = ?", req.params.sub);
+		} else {
+			q = await req.db.query("SELECT subs.id, subs.urlname, subscriptions.id AS isSubbed FROM `subs` LEFT JOIN `subscriptions` ON subscriptions.subID = subs.id AND subscriptions.userID = ? WHERE subs.urlname = ?", [req.user.id, req.params.sub]);
+		}
+		
+		if(null === q)
+			return res.badPetition("noSuchSub");
 	
-	if(null === q)
-		return res.badPetition("noSuchSub");
-
-	req.sub = q[0];
-	req.sub.isSubbed = (req.sub.isSubbed || null) !== null;
+		req.sub = q[0];
+		req.sub.isSubbed = (req.sub.isSubbed || null) !== null;
+		req.sub.isAll = false;
+		req.sub.isMe = false;
+	}
 
 	next();
 }
@@ -165,6 +188,11 @@ async function checkUsedData(req, res, next) {
 		return res.badPetition("subExists");
 		
 	next();
+}
+
+function notAll(req, res, next) {
+	if(req.params.sub === "all" ||req.params.sub === "me")
+		return res.badPetition("forbidden");
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

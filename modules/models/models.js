@@ -66,7 +66,8 @@ sub.urlname = validators.subUrlname;
 
 let postEdit = {
 	title: validators.postTitle,
-	content: validators.postContent
+	content: validators.postContent,
+	image: validators.avatar
 }
 let post = Object.assign({}, postEdit);
 post.link = validators.postLink;
