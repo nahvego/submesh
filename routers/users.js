@@ -1,5 +1,3 @@
-'use strict';
-
 /*
 ENDPOINTS:
 
@@ -184,13 +182,13 @@ async function addUser(req, res) {
 }
 
 async function editUser(req, res) {
-	let q = await req.db.query("UPDATE `users` SET ? WHERE name = ?", [req.body, req.params.user]);
+	await req.db.query("UPDATE `users` SET ? WHERE name = ?", [req.body, req.params.user]);
 	let get = await req.db.query("SELECT ?? FROM `users` WHERE name = ?", [privateUserModel, req.params.user]);
 	res.json(get[0]);
 }
 
 async function removeUser(req, res) {
 	let get = await req.db.query("SELECT ?? FROM `users` WHERE name = ?", [privateUserModel, req.params.user]);
-	let q = await req.db.query("DELETE FROM `users` WHERE name = ?", [req.params.user]);
+	await req.db.query("DELETE FROM `users` WHERE name = ?", [req.params.user]);
 	res.json(get[0]);
 }

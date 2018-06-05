@@ -51,7 +51,7 @@ function queryChecker(req, res, next) {
 	let obj = {};
 
 	if(req.query.count !== undefined) {
-		console.log(req.query.count, settings.api.max_results, isInt(req.query.count))
+		
 		if(!isInt(req.query.count) || req.query.count > settings.api.max_results)
 			return res.badPetition("malformedRequest", "count debe ser un entero <= " + settings.api.max_results)
 		obj.count = req.query.count;

@@ -10,10 +10,10 @@ module.exports = async function(req, res) {
 
 	let q = await req.db.query("SELECT id, password FROM `users` WHERE name = ?", [req.body.user]);
 	
-	if(null == q)
+	if(null === q)
 		return res.badPetition("forbiddenNoUser");
 
-	require('bcrypt').compare(req.body.password, q[0].password, async function(err, result) {
+	require('bcrypt').compare(req.body.password, q[0].password, function(err, result) {
 		if(err)
 			return res.badPetition("genericError");
 		if(!result)
@@ -28,11 +28,11 @@ module.exports = async function(req, res) {
 }
 
 async function usingRefreshToken(req, res) {
-	if(req.body.refresh === undefined || Object.keys(req.body).length > 1)
+	if(req.body.refresh === undefined || Object.keys(req.body).length > 1) // eslint no-magic-numbers: 0
 		return res.badPetition("malformedRequest");
 
 	let q = await req.db.query("SELECT users.id, users.name FROM `tokens` JOIN `users` ON users.id = tokens.userID WHERE tokens.refreshToken = ? AND tokens.refreshUsed = '0'", [req.body.refresh]);
-	if(null == q)
+	if(null === q)
 		return res.badPetition("incorrectRefreshToken");
 
 	await req.db.query("UPDATE `tokens` SET refreshUsed = TRUE WHERE refreshToken = ?", [req.body.refresh])

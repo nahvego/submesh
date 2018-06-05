@@ -1,4 +1,3 @@
-'use strict';
 /*
 
 La función exportada devuelve un valor booleano que indica si el usuario que está haciendo la llamada tiene permisos para realizar ciertas acciones.
@@ -29,7 +28,7 @@ module.exports = function(action, orIsUser) {
 			if(this.user.name == orIsUser.name)
 				return true;
 		} else {
-			throw new Error("isAllowedTo: orIsUser is neither a number, a string or a valid object. <" + orIsUser + ">")
+			throw new Error("isAllowedTo: orIsUser is neither a number, a string or a valid object. <" + orIsUser + ">");
 		}
 	}
 

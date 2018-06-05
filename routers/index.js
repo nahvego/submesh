@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-'use strict';
-
 const express = require('express');
 const { headerChecker, appChecker, authChecker, queryChecker } = require('./middlewares/checkers.js');
 /*

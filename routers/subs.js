@@ -1,5 +1,3 @@
-'use strict';
-
 /* ENDPOINTS:
 
 El SUB puede referenciarse mediante ID o URLNAM
@@ -193,6 +191,8 @@ async function checkUsedData(req, res, next) {
 function notAll(req, res, next) {
 	if(req.params.sub === "all" ||req.params.sub === "me")
 		return res.badPetition("forbidden");
+
+	next();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +203,6 @@ async function getSub(req, res) {
 	
 	let q = await req.db.query("SELECT * FROM `subs` WHERE urlname = ?", [req.params.sub]);
 
-	console.log(req.user);
 	res.json(q[0]);
 
 	// TODO: INCLUDE POSTS
@@ -220,14 +219,14 @@ async function addSub(req, res) {
 }
 
 async function editSub(req, res) {
-	let q = await req.db.query("UPDATE `subs` SET ? WHERE urlname = ?", [req.body, req.params.sub]);
+	await req.db.query("UPDATE `subs` SET ? WHERE urlname = ?", [req.body, req.params.sub]);
 	let get = await req.db.query("SELECT * FROM `subs` WHERE urlname = ?", [req.params.sub]);
 	res.json(get[0]);
 }
 
 async function removeSub(req, res) {
 	let get = await req.db.query("SELECT * FROM `subs` WHERE urlname = ?", [req.params.sub]);
-	let q = await req.db.query("DELETE FROM `subs` WHERE urlname = ?", [req.params.sub]);
+	await req.db.query("DELETE FROM `subs` WHERE urlname = ?", [req.params.sub]);
 	res.json(get[0]);
 }
 

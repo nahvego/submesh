@@ -1,4 +1,3 @@
-'use strict';
 /*
 Endpoints:
 /sub/:sub/posts/:PID con get, delete, put, post
@@ -111,6 +110,8 @@ router.delete('/:post', removePost);
 function notAll(req, res, next) {
 	if(req.params.sub === "all")
 		return res.badPetition("forbidden");
+
+	next();
 }
 
 function checkUserSubbed(req, res, next) {
@@ -244,7 +245,7 @@ async function addPost(req, res) {
 
 async function editPost(req, res) {
 	
-	let q = await req.db.query("UPDATE `posts` SET ? WHERE id = ?", [req.body, req.params.post]);
+	await req.db.query("UPDATE `posts` SET ? WHERE id = ?", [req.body, req.params.post]);
 	let get = await req.db.query("SELECT * FROM `posts` WHERE id = ?", [req.params.post]);
 	res.json(get[0]);
 }

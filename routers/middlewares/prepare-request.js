@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 /*
 Añade req.db como conexión con la base de datos para la request actual.
 Añade req.isAllowedTo

@@ -26,5 +26,8 @@
     "morgan": "^1.9.0",
     "mysql": "^2.15.0",
     "settings": "file:modules/settings"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1"
   }
 }

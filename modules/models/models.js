@@ -1,5 +1,3 @@
-'use strict';
-
 /*
 Este módulo define métodos para comprobar si un objeto cumple con unos requisitos establecidos.
 
@@ -26,10 +24,10 @@ const validators = {
 	username: function() { return !/^[0-9]+$/.test(this) && /^[a-zA-Z0-9_-]{3,15}$/.test(this); },
 	description: function() { return validators.maxLength.call(this, 200); },
 	avatar: function() { return require('is-image-url')(this, false); },
-	email: function() { return require('email-validator').validate(this) },
+	email: function() { return require('email-validator').validate(this); },
 
 	subName: function() { return /^[a-zA-Z0-9_-]{3,40}$/.test(this); },
-	subUrlname: function() { return  "posts" != this && !/^[0-9]+$/.test(this) && /^[a-z0-9-]{4,20}$/.test(this);},
+	subUrlname: function() { return "posts" != this && !/^[0-9]+$/.test(this) && /^[a-z0-9-]{4,20}$/.test(this);},
 	subDescription: function() { return this.length >= 5 && this.length <= 500; },
 
 	postTitle: function() { return this.length >= 5 && this.length <= 50; },
@@ -37,13 +35,13 @@ const validators = {
 	postLink: function() { return this.length < 255 && require('is-http-url')(this); },
 
 	commentContent: function() { return this.length > 1; }
-}
+};
 
 const ERRTYPES = {
 	MISSING: "MISSING",
 	INVALID: "INVALID FIELD",
 	FORMAT: "INVALID FORMAT"
-}
+};
 
 /* Los modelos son objetos que se definen como objetos clave-valor donde las claves son el nombre del elemento contra el que se hará la comprobación posterior; y el valor es
 una función de validación */

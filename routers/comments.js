@@ -1,5 +1,3 @@
-'use strict';
-
 /*
 
 ENDPOINTS:
@@ -92,7 +90,7 @@ function checkCommentUpdateIntegrity(req, res, next) {
 async function getCommentList(req, res) {
 
 	let q = await req.db.query("SELECT * FROM `comments` WHERE postID = ? ORDER BY id DESC LIMIT " + req.options.count, [req.post.id]);
-	console.log(q);
+
 	res.json(q || []);
 }
 
@@ -116,7 +114,7 @@ async function addComment(req, res) {
 
 async function editComment(req, res) {
 
-	let ins = await req.db.query("UPDATE `comments` SET ? WHERE id = ?", [req.body, req.params.comment]);
+	await req.db.query("UPDATE `comments` SET ? WHERE id = ?", [req.body, req.params.comment]);
 	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ? ", [req.params.comment]);
 
 	res.json(get[0]);

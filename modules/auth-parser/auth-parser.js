@@ -1,4 +1,3 @@
-'use strict';
 /*
 Técnicamente no es la implementación correcta de Basic; pero vamos a dejarlo porque vamos a dejarlo eh.
 
@@ -24,7 +23,7 @@ returns boolean: El valor de retorno indica si debe cortarse la petición o no. 
 module.exports = async function(req, result) {
 	let header = req.get('Authorization');
 	if(header === undefined) {
-		result = {}; // Esto es syntactic sugar porque realmente no hace nada
+		//result = {}; // Esto es syntactic sugar porque realmente no hace nada
 		return true;
 	}
 	
@@ -42,9 +41,9 @@ module.exports = async function(req, result) {
 		"JOIN tokens ON tokens.userID = users.id " +
 		"LEFT JOIN roles ON users.roleID = roles.id " +
 		"LEFT JOIN role_permissions ON roles.id = role_permissions.roleID " +
-		"WHERE token = ? GROUP BY users.id "
-	, parts[1]);
-	if(q == null) {
+		"WHERE token = ? GROUP BY users.id ",
+		parts[1]);
+	if(q === null) {
 		result.msg = "Incorrect credentials";
 		return false;
 	} else if(new Date() > q[0].expires) {
@@ -62,11 +61,11 @@ module.exports = async function(req, result) {
 		result[col] = q[0][col];
 	}
 
-	if(result.perms != null)
+	if(result.perms !== null)
 		result.permissions = result.perms.split(',');
 	else
 		result.permissions = [];
-	delete result.perms
+	delete result.perms;
 
 	return true;
-}
+};
