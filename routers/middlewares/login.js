@@ -36,6 +36,8 @@ async function usingRefreshToken(req, res) {
 	if(null == q)
 		return res.badPetition("incorrectRefreshToken");
 
+	await req.db.query("UPDATE `tokens` SET refreshUsed = TRUE WHERE refresh = ?", [req.body.refresh])
+
 	res.json(generatePayload({
 		id: q[0].id,
 		name: q[0].name
