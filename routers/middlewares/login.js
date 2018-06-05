@@ -5,8 +5,9 @@ const settings = require('settings');
 module.exports = async function(req, res) {
 	let d = new Date();
 	let c = require('models')(req.body, 'login');
-	if(!c.result)
-		return res.badPetition("malformedRequest", { errors: c.errors });
+	if(!c.result) {
+		return usingRefreshToken(req, res);
+	}
 
 	let q = await req.db.query("SELECT id, password FROM `users` WHERE name = ?", [req.body.user]);
 	
@@ -19,29 +20,56 @@ module.exports = async function(req, res) {
 		if(!result)
 			return res.badPetition("incorrectPassword");
 		
-		require('crypto').randomBytes(settings.auth.tokenLength, async (err, buf) => {
-			if(err)
-				return res.badPetition("genericError");
+		res.json(generatePayload({
+			id: q[0].id,
+			name: req.body.user
+		}));
 
-			let insertObj = {
-				userID: q[0].id,
-				token: buf.toString('hex', 0, settings.auth.tokenLength/2),
-				refreshToken: buf.toString('hex', settings.auth.tokenLength/2),
-				expirationDate: new Date(d.getTime() + settings.auth.tokenDuration * 1000)
-			}
-			await req.db.query("INSERT INTO `tokens` SET ?", insertObj);
+	});
+}
 
-			let s = await req.db.query("SELECT GROUP_CONCAT(subs.urlname SEPARATOR ',') AS list FROM `subscriptions` s JOIN `subs` ON s.subID = subs.id WHERE s.userID = ? GROUP BY s.userID", [q[0].id]);
+async function usingRefreshToken(req, res) {
+	if(req.body.refresh === undefined || Object.keys(req.body).length > 1)
+		return res.badPetition("malformedRequest");
 
-			res.json({
-				userID: insertObj.userID,
-				name: req.body.user,
-				token: insertObj.token,
-				refresh: insertObj.refreshToken,
-				validUntil: insertObj.expirationDate,
-				subscriptions: s[0].list.split(',')
-			})
-		});
+	let q = await req.db.query("SELECT users.id, users.name FROM `tokens` JOIN `users` ON users.id = tokens.userID WHERE tokens.refreshToken = ? AND tokens.refreshUsed = '0'", [req.body.refresh]);
+	if(null == q)
+		return res.badPetition("incorrectRefreshToken");
 
+	res.json(generatePayload({
+		id: q[0].id,
+		name: q[0].name
+	}));
+}
+
+/*
+data = {
+	id,
+	name
+}
+*/
+function generatePayload(data) {
+	require('crypto').randomBytes(settings.auth.tokenLength, async (err, buf) => {
+		if(err)
+			return res.badPetition("genericError");
+
+		let insertObj = {
+			userID: data.id,
+			token: buf.toString('hex', 0, settings.auth.tokenLength/2),
+			refreshToken: buf.toString('hex', settings.auth.tokenLength/2),
+			expirationDate: new Date(d.getTime() + settings.auth.tokenDuration * 1000)
+		}
+		await req.db.query("INSERT INTO `tokens` SET ?", insertObj);
+
+		let s = await req.db.query("SELECT GROUP_CONCAT(subs.urlname SEPARATOR ',') AS list FROM `subscriptions` s JOIN `subs` ON s.subID = subs.id WHERE s.userID = ? GROUP BY s.userID", [data.id]);
+
+		return {
+			userID: insertObj.userID,
+			name: data.name,
+			token: insertObj.token,
+			refresh: insertObj.refreshToken,
+			validUntil: insertObj.expirationDate,
+			subscriptions: s[0].list.split(',')
+		}
 	});
 }

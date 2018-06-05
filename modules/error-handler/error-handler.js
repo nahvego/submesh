@@ -69,7 +69,8 @@ const errors = {
 	"cantBeSubbed": [451, "No puedes estar suscrito al sub para realizar esta acción", codes.FORBIDDEN],
 
 	"forbiddenNoUser": [420, "No existe el usuario", codes.FORBIDDEN],
-	"incorrectPassword": [421, "Contraseña incorrecta", codes.FORBIDDEN]
+	"incorrectPassword": [421, "Contraseña incorrecta", codes.FORBIDDEN],
+	"incorrectRefreshToken": [422, "Token de refresco no válido", codes.FORBIDDEN]
 };
 
 /*
