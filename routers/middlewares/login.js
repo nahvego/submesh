@@ -3,7 +3,6 @@
 const settings = require('settings');
 
 module.exports = async function(req, res) {
-	let d = new Date();
 	let c = require('models')(req.body, 'login');
 	if(!c.result) {
 		return usingRefreshToken(req, res);
@@ -14,16 +13,16 @@ module.exports = async function(req, res) {
 	if(null == q)
 		return res.badPetition("forbiddenNoUser");
 
-	require('bcrypt').compare(req.body.password, q[0].password, function(err, result) {
+	require('bcrypt').compare(req.body.password, q[0].password, async function(err, result) {
 		if(err)
 			return res.badPetition("genericError");
 		if(!result)
 			return res.badPetition("incorrectPassword");
 		
-		res.json(generatePayload({
+		generatePayload(req, res, {
 			id: q[0].id,
 			name: req.body.user
-		}));
+		})
 
 	});
 }
@@ -36,12 +35,12 @@ async function usingRefreshToken(req, res) {
 	if(null == q)
 		return res.badPetition("incorrectRefreshToken");
 
-	await req.db.query("UPDATE `tokens` SET refreshUsed = TRUE WHERE refresh = ?", [req.body.refresh])
+	await req.db.query("UPDATE `tokens` SET refreshUsed = TRUE WHERE refreshToken = ?", [req.body.refresh])
 
-	res.json(generatePayload({
+	generatePayload(req, res, {
 		id: q[0].id,
 		name: q[0].name
-	}));
+	})
 }
 
 /*
@@ -50,7 +49,7 @@ data = {
 	name
 }
 */
-function generatePayload(data) {
+function generatePayload(req, res, data) {
 	require('crypto').randomBytes(settings.auth.tokenLength, async (err, buf) => {
 		if(err)
 			return res.badPetition("genericError");
@@ -59,19 +58,20 @@ function generatePayload(data) {
 			userID: data.id,
 			token: buf.toString('hex', 0, settings.auth.tokenLength/2),
 			refreshToken: buf.toString('hex', settings.auth.tokenLength/2),
-			expirationDate: new Date(d.getTime() + settings.auth.tokenDuration * 1000)
+			expirationDate: new Date((new Date()).getTime() + settings.auth.tokenDuration * 1000)
 		}
 		await req.db.query("INSERT INTO `tokens` SET ?", insertObj);
 
 		let s = await req.db.query("SELECT GROUP_CONCAT(subs.urlname SEPARATOR ',') AS list FROM `subscriptions` s JOIN `subs` ON s.subID = subs.id WHERE s.userID = ? GROUP BY s.userID", [data.id]);
 
-		return {
+		let retObj = {
 			userID: insertObj.userID,
 			name: data.name,
 			token: insertObj.token,
 			refresh: insertObj.refreshToken,
 			validUntil: insertObj.expirationDate,
 			subscriptions: s[0].list.split(',')
-		}
+		};
+		res.json(retObj)
 	});
 }
