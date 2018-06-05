@@ -42,8 +42,15 @@ const buildPostQuery = function(req) {
 	if(req.options.fromID)
 		where.push("posts.id < '" + req.options.fromID + "'");
 
+	let postSelection;
+	if(req.post) {
+		postSelection = "posts.*";
+	} else {
+		postSelection = "posts.id, posts.title, posts.link, posts.avatar, posts.authorID, posts.subID, posts.creationDate";
+	}
+
 	return "" +
-	"SELECT posts.*, subs.urlname AS subUrlname, users.name AS authorName, COUNT(DISTINCTROW comments.id) AS commentCount, " +
+	"SELECT " + postSelection + ", subs.urlname AS subUrlname, users.name AS authorName, COUNT(DISTINCTROW comments.id) AS commentCount, " +
 	"COUNT(DISTINCT votes.id) AS totalVotes, " +
 	"IFNULL(SUM(votes.value)*COUNT(DISTINCT votes.id)/COUNT(posts.id), 0) AS score, " +
 	"IFNULL(COUNT(DISTINCT just_upvotes.id)*100/COUNT(DISTINCT votes.id), 0) AS upvotePercentage " +
