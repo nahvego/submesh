@@ -200,7 +200,7 @@ function notAll(req, res, next) {
 
 async function getSub(req, res) {
 
-	let q = await req.db.query("SELECT * FROM `subs` WHERE urlname = ?", [req.params.sub]);
+	let q = await req.db.query("SELECT subs.*, IFNULL(COUNT(s.id), 0) AS subCount FROM `subs` LEFT JOIN `subscriptions` s ON s.subID = subs.id WHERE urlname = ?", [req.params.sub]);
 
 	res.json(q[0]);
 

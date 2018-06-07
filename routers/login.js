@@ -70,7 +70,7 @@ function generatePayload(req, res, data) {
 			token: insertObj.token,
 			refresh: insertObj.refreshToken,
 			validUntil: insertObj.expirationDate,
-			subscriptions: s[0].list.split(',')
+			subscriptions: (s !== null && s[0].list.split(',')) || []
 		};
 		res.json(retObj)
 	});

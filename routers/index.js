@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.use(require('./middlewares/prepare-request.js'));
 
-router.post('/login', require('./middlewares/login.js'));
+router.post('/login', require('./login.js'));
 
 router.use(headerChecker);
 router.use(appChecker);
