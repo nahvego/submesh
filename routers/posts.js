@@ -219,7 +219,7 @@ async function getPost(req, res) {
 	// TODO: Get_comments
 	let q = await req.db.query(buildPostQuery(req), [req.sub.id, req.params.post]);
 
-	if(false && req.options.includeComments) {
+	if((q === null || q !== null) && req.options.includeComments) {
 		// No me gusta nada lo de las múltiples queries y tal :/
 		let comments = await req.db.query("SELECT * FROM `comments` WHERE postID = ? ORDER BY id DESC LIMIT " + req.options.count, [req.params.post]);
 		q[0]['comments'] = comments;

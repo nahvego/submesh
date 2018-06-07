@@ -52,11 +52,11 @@ function queryChecker(req, res, next) {
 
 	if(req.query.count !== undefined) {
 
-		if(!isInt(req.query.count) || req.query.count > settings.api.max_results)
-			return res.badPetition("malformedRequest", "count debe ser un entero <= " + settings.api.max_results)
+		if(!isInt(req.query.count) || req.query.count > settings.api.maxResults)
+			return res.badPetition("malformedRequest", "count debe ser un entero <= " + settings.api.maxResults)
 		obj.count = req.query.count;
 	} else {
-		obj.count = settings.api.max_results;
+		obj.count = settings.api.maxResults;
 	}
 
 	if(req.query.fromID !== undefined) {
