@@ -48,7 +48,7 @@ const buildPostQuery = function(req) {
 
 	return "" +
 	"SELECT " + postSelection + ", subs.urlname AS subUrlname, users.name AS authorName, COUNT(DISTINCTROW comments.id) AS commentCount, " +
-	(req.user !== undefined ? "self_votes.value AS ownVote, " : "") +
+	(req.user !== undefined ? "IFNULL(self_votes.value, 0) AS ownVote, " : "") +
 	"COUNT(DISTINCT votes.id) AS totalVotes, " +
 	"IFNULL(SUM(votes.value)*COUNT(DISTINCT votes.id)/COUNT(posts.id), 0) AS score, " +
 	"IFNULL(COUNT(DISTINCT just_upvotes.id)*100/COUNT(DISTINCT votes.id), 0) AS upvotePercentage " +
