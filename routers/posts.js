@@ -48,6 +48,7 @@ const buildPostQuery = function(req) {
 
 	return "" +
 	"SELECT " + postSelection + ", subs.urlname AS subUrlname, users.name AS authorName, COUNT(DISTINCTROW comments.id) AS commentCount, " +
+	(req.user !== undefined ? "self_votes.value AS ownVote, " : "") +
 	"COUNT(DISTINCT votes.id) AS totalVotes, " +
 	"IFNULL(SUM(votes.value)*COUNT(DISTINCT votes.id)/COUNT(posts.id), 0) AS score, " +
 	"IFNULL(COUNT(DISTINCT just_upvotes.id)*100/COUNT(DISTINCT votes.id), 0) AS upvotePercentage " +
@@ -57,6 +58,7 @@ const buildPostQuery = function(req) {
 	"LEFT JOIN `comments` ON posts.id = comments.postID " +
 	"LEFT JOIN `post_votes` AS votes ON posts.id = votes.postID " +
 	"LEFT JOIN `post_votes` AS just_upvotes ON posts.id = just_upvotes.postID AND just_upvotes.value > 0 " +
+	(req.user !== undefined ? "LEFT JOIN `post_votes` AS self_votes ON posts.id = self_votes.postID AND self_votes.voterID = '" + req.user.id + "' " : "") +
 	(where.length > 0 ? "WHERE " + where.join(" AND ") + " " : "") +
 	"GROUP BY posts.id ORDER BY posts.id DESC LIMIT " + req.options.count;
 }
