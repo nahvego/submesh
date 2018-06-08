@@ -32,7 +32,7 @@ module.exports = {
 		//"consistent-return": "error",
 		"no-empty-function": "error",
 		"no-eq-null": "error",
-		"no-magic-numbers": ["warn", { "ignoreArrayIndexes": true, "ignore": [0,1,2,400,500,1000] }],
+		"no-magic-numbers": ["warn", { "ignoreArrayIndexes": true, "ignore": [-1,0,1,2,400,500,1000] }],
 		"no-multi-spaces": "error",
 		"no-multi-str": "error",
 		"no-param-reassign": "error", // no sé
