@@ -291,10 +291,12 @@ async function votePost(req, res) {
 	};
 
 	await req.db.query("INSERT INTO `post_votes` SET ?", insertObj);
+	let total = req.db.query("SELECT SUM(value) FROM `post_votes` WHERE postID = ? GROUP BY postID", [req.post.id]);
 
 	let ret = {
 		postID: req.post.id,
-		change: (null === v ? 1 : 2) * req.vote
+		change: (null === v ? 1 : 2) * req.vote,
+		total
 	};
 
 	res.json(ret);
@@ -310,10 +312,12 @@ async function unvotePost(req, res) {
 		return res.badPetition("malformedRequest", "Unvote amount =/= voted amount")
 
 	await req.db.query("DELETE FROM `post_votes` WHERE id = ?", [v[0].id]);
+	let total = req.db.query("SELECT SUM(value) FROM `post_votes` WHERE postID = ? GROUP BY postID", [req.post.id]);
 
 	let ret = {
 		postID: req.post.id,
-		change: -parseInt(v[0].value)
+		change: -parseInt(v[0].value),
+		total
 	};
 
 	res.json(ret);
