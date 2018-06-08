@@ -312,12 +312,12 @@ async function unvotePost(req, res) {
 		return res.badPetition("malformedRequest", "Unvote amount =/= voted amount")
 
 	await req.db.query("DELETE FROM `post_votes` WHERE id = ?", [v[0].id]);
-	let total = req.db.query("SELECT SUM(value) AS v FROM `post_votes` WHERE postID = ? GROUP BY postID", [req.post.id]);
-
+	let totalQuery = await req.db.query("SELECT IFNULL(SUM(value), 0) AS v FROM `post_votes` WHERE postID = ? GROUP BY postID", [req.post.id]);
+	let total = (null === totalQuery ? 0 : totalQuery[0].v)
 	let ret = {
 		postID: req.post.id,
 		change: -parseInt(v[0].value),
-		total: total[0].v
+		total
 	};
 
 	res.json(ret);
