@@ -18,21 +18,26 @@ Retorna un objeto con los siguientes campos:
 */
 
 // Validators es un obj que contiene validadores reutilizables
+
+const isImageUrl = require('is-image-url');
+const emailValidator = require('email-validator');
+const isHttpUrl = require('is-http-url');
+
 const validators = {
 	valid: function() { return true; },
 	maxLength: function(max, min) { return this.length <= max && this.length >= (min || 0); },
 	username: function() { return !/^[0-9]+$/.test(this) && /^[a-zA-Z0-9_-]{3,15}$/.test(this); },
 	description: function() { return validators.maxLength.call(this, 200); },
-	avatar: function() { return require('is-image-url')(this, false); },
-	email: function() { return require('email-validator').validate(this); },
+	avatar: function() { return isImageUrl(this, false); },
+	email: function() { return emailValidator.validate(this); },
 
 	subName: function() { return /^[a-zA-Z0-9_-]{3,40}$/.test(this); },
-	subUrlname: function() { return "posts" != this && !/^[0-9]+$/.test(this) && /^[a-z0-9-]{4,20}$/.test(this);},
+	subUrlname: function() { return "posts" != this && !/^[0-9]+$/.test(this) && /^[a-z0-9-]{4,20}$/.test(this); },
 	subDescription: function() { return this.length >= 5 && this.length <= 500; },
 
 	postTitle: function() { return this.length >= 5 && this.length <= 50; },
 	postContent: function() { return this.length > 10; },
-	postLink: function() { return this.length < 255 && require('is-http-url')(this); },
+	postLink: function() { return this.length < 255 && isHttpUrl(this.toString()); },
 
 	commentContent: function() { return this.length > 1; }
 };

@@ -43,7 +43,7 @@ const buildPostQuery = function(req) {
 	if(req.post) {
 		postSelection = "posts.*";
 	} else {
-		postSelection = "posts.id, posts.title, posts.link, posts.avatar, posts.authorID, posts.subID, posts.creationDate";
+		postSelection = "posts.id, posts.title, posts.link, posts.image, posts.authorID, posts.subID, posts.creationDate";
 	}
 
 	return "" +
