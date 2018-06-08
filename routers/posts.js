@@ -78,6 +78,9 @@ router.post('/', checkUserSubbed);
 router.put('/:post', checkUserSubbed);
 router.delete('/:post', checkUserSubbed);
 
+router.post('/:post/votes', checkUserSubbed);
+router.delete('/:post/votes', checkUserSubbed);
+
 router.put('/:post', checkPermissionsEditPost);
 router.delete('/:post', checkPermissionsDeletePost);
 
@@ -87,6 +90,8 @@ router.get('/:post', validateSinglePostOptions);
 
 router.post('/', checkPostInsertIntegrity);
 router.put('/:post', checkPostUpdateIntegrity);
+
+router.use('/:post/votes', checkVoteBody)
 
 router.post('/', generateImage);
 // Endpoints
@@ -101,11 +106,25 @@ router.put('/:post', editPost);
 
 router.delete('/:post', removePost);
 
+router.post('/:post/votes', votePost);
+router.delete('/:post/votes', unvotePost);
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Middlewares////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function checkVoteBody(req, res, next) {
+	req.vote = parseInt(req.body.vote);
+	if(req.body.vote === undefined)
+		return res.badPetition("malformedRequest", "Field 'vote' missing");
+
+	if(req.vote !== 1 && req.vote !== -1)
+		return res.badPetition("malformedRequest", "Invalid vote amount")
+
+	return next();
+}
 
 function notAll(req, res, next) {
 	if(req.params.sub === "all")
@@ -255,4 +274,47 @@ async function removePost(req, res) {
 	let get = await req.db.query("SELECT * FROM `posts` WHERE id = ?", [req.params.post]);
 	await req.db.query("DELETE FROM `posts` WHERE id = ?", [req.params.post]);
 	res.json(get[0]);
+}
+
+async function votePost(req, res) {
+	let v = await req.db.query("SELECT id, value FROM `post_votes` WHERE voterID = ? AND postID = ?", [req.user.id, req.post.id]);
+	if(null !== v && v[0].value === req.vote)
+		return res.badPetition("alreadyVotedPost");
+
+	if(null !== v)
+		await req.db.query("DELETE FROM `post_votes` WHERE id = ?", [v[0].id]);
+
+	let insertObj = {
+		voterID: req.user.id,
+		postID: req.post.id,
+		value: req.vote
+	};
+
+	await req.db.query("INSERT INTO `post_votes` SET ?", insertObj);
+
+	let ret = {
+		postID: req.post.id,
+		change: (null === v ? 1 : 2) * req.vote
+	};
+
+	res.json(ret);
+}
+
+
+async function unvotePost(req, res) {
+	let v = await req.db.query("SELECT id, value FROM `post_votes` WHERE voterID = ? AND postID = ?", [req.user.id, req.post.id]);
+	if(null === v)
+		return res.badPetition("postNotVoted");
+
+	if(v[0].value !== req.vote)
+		return res.badPetition("malformedRequest", "Unvote amount =/= voted amount")
+
+	await req.db.query("DELETE FROM `post_votes` WHERE id = ?", [v[0].id]);
+
+	let ret = {
+		postID: req.post.id,
+		change: -parseInt(v[0].value)
+	};
+
+	res.json(ret);
 }

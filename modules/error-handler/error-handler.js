@@ -54,6 +54,8 @@ const errors = {
 	// Errores sobre posts: 3XXX
 	"noSuchPost": [3000, "El post no existe", codes.BAD_REQUEST],
 	"incorrectSubForGivenPost": [3001, "El post no corresponde al sub proporcionado", codes.BAD_REQUEST],
+	"alreadyVotedPost": [3100, "Ya votaste este post", codes.BAD_REQUEST],
+	"postNotVoted": [3101, "Post no votado", codes.BAD_REQUEST],
 	// Errores osbre comments: 4XXX
 	"noSuchComment": [4000, "El comentario no existe", codes.BAD_REQUEST],
 	"incorrectSubForGivenComment": [3001, "El comentario no corresponde al sub proporcionado", codes.BAD_REQUEST],
