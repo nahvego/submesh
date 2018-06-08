@@ -72,6 +72,7 @@ const errors = {
 	"forbiddenNoUser": [420, "No existe el usuario", codes.FORBIDDEN],
 	"incorrectPassword": [421, "Contraseña incorrecta", codes.FORBIDDEN],
 	"incorrectRefreshToken": [422, "Token de refresco no válido", codes.FORBIDDEN],
+	"refreshTooEarly": [423, "Refresco demasiado rápido", codes.FORBIDDEN],
 };
 
 /*
