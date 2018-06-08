@@ -91,7 +91,8 @@ Para facilitar la comprobación de datos de los usuarios, el módulo models ofre
 - [ ] Moderación de subs, pero bien hecha.
 - [ ] Logs de moderación per-sub
 - [ ] Qué hacer con los subs sin suscriptores
-
+- [ ] Al votar debería devolver nueva score. Usarlo en frontend
+ 
 ### Otras cosas random del bloc de notas
 
 ## Sobre requisitos
