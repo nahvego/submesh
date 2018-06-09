@@ -31,13 +31,14 @@ async function usingRefreshToken(req, res) {
 	if(req.body.refresh === undefined || Object.keys(req.body).length > 1) // eslint no-magic-numbers: 0
 		return res.badPetition("malformedRequest");
 
-	let q = await req.db.query("SELECT users.id, users.name, tokens.creationDate FROM `tokens` JOIN `users` ON users.id = tokens.userID WHERE tokens.refreshToken = ? AND tokens.refreshUsed = '0'", [req.body.refresh]);
+	let q = await req.db.query("SELECT users.id, users.name, tokens.creationDate, tokens.expirationDate FROM `tokens` JOIN `users` ON users.id = tokens.userID WHERE tokens.refreshToken = ? AND tokens.refreshUsed = '0'", [req.body.refresh]);
 	if(null === q)
 		return res.badPetition("incorrectRefreshToken");
 
 	// TODO: Debería de poder usarse un refresh con un token que existe?
 	// Es posible que dos componentes de Vue hagan el refresco muy cerca uno del otro. Del rollo que cogen el siguiente token sabes
-	if((q[0].creationDate - new Date()) < 60000) {
+
+	if(new Date() < q[0].expirationDate) {
 		return res.badPetition("refreshTooEarly");
 	}
 
