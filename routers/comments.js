@@ -87,7 +87,7 @@ function checkCommentUpdateIntegrity(req, res, next) {
 
 async function getCommentList(req, res) {
 
-	let q = await req.db.query("SELECT * FROM `comments` WHERE postID = ? ORDER BY id DESC LIMIT " + req.options.count, [req.post.id]);
+	let q = await req.db.query("SELECT c.*, u.name AS authorName FROM `comments` c LEFT JOIN `users` u ON u.id = c.authorID WHERE c.postID = ? ORDER BY id DESC LIMIT " + req.options.count, [req.post.id]);
 
 	res.json(q || []);
 }
@@ -95,7 +95,7 @@ async function getCommentList(req, res) {
 async function getComment(req, res) {
 	// include_replies? deep? replies_count?
 
-	let q = await req.db.query("SELECT * FROM `comments` WHERE id = ?", [req.params.comment]);
+	let q = await req.db.query("SELECT c.*, u.name AS authorName FROM `comments` c LEFT JOIN `users` u ON u.id = c.authorID WHERE c.id = ?", [req.params.comment]);
 	res.json(q[0]);
 }
 
