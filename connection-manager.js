@@ -22,10 +22,11 @@ Para MySQL vamos a usar una ConnectionPool.
 
 
 */
+const dbProvider = require('mysql');
 
 class ConnectionManager {
 	constructor(settings) {
-		this._pool = require('mysql').createPool(settings);
+		this._pool = dbProvider.createPool(settings);
 	}
 
 	getConnection() {
@@ -40,16 +41,19 @@ class ConnectionManager {
 
 	releaseConnection(conn) {
 		//console.log(conn, typeof conn.release)
+		if(process.env.NODE_ENV !== 'production') console.log("Connection released: " + conn._queryCount + " queries")
 		conn.release();
 	}
 
 	_alterConnection(conn) {
+		conn._queryCount = 0;
 
 		if(conn._query === undefined) {
 			Object.defineProperty(conn, "_query", { value: conn.query });
 			Object.defineProperties(conn, {
 				"query": {
 					value: function(...args) {
+						this._queryCount++;
 						return new Promise(((res, rej) => {
 							//console.log(this, typeof this._query)
 							this._query(...args, function(error, results, fields) {
