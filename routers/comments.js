@@ -186,6 +186,7 @@ async function getCommentList(req, res) {
 	for(let i = 0;i < q.length; i++) {
 		indices['id_' + q[i].id] = q[i];
 		q[i].replies = [];
+		q[i].deleted = q[i].content === null;
 		if(q[i].replyTo)
 			indices['id_' + q[i].replyTo].replies.push(q[i]);
 		else
@@ -205,6 +206,8 @@ async function getComment(req, res) {
 	comm.replies = [];
 	for(let i = 1;i < q.length; i++)
 		comm.replies.push(q[i])
+
+	comm.deleted = comm.content === null;
 	res.json(comm);
 }
 
@@ -235,8 +238,10 @@ async function editComment(req, res) {
 
 async function deleteComment(req, res) {
 
-	let get = await req.db.query("SELECT comments.*, IFNULL(COUNT(replies.id), 0) AS deletedReplies FROM `comments` LEFT JOIN `comments` replies ON replies.replyTo = comments.id WHERE comments.id = ? GROUP BY comments.id", [req.params.comment]);
-	await req.db.query("DELETE FROM `comments` WHERE id = ?", [req.params.comment]);
+	//let get = await req.db.query("SELECT comments.*, IFNULL(COUNT(replies.id), 0) AS deletedReplies FROM `comments` LEFT JOIN `comments` replies ON replies.replyTo = comments.id WHERE comments.id = ? GROUP BY comments.id", [req.params.comment]);
+	//await req.db.query("DELETE FROM `comments` WHERE id = ?", [req.params.comment]);
+	await req.db.query("UPDATE `comments` SET content = '' WHERE id = ?", [req.params.comment])
+	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ?", [req.params.id])
 
 	res.json(get[0]);
 }
