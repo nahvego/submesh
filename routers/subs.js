@@ -163,6 +163,9 @@ function checkInsertIntegrity(req, res, next) {
 
 	if(!c.result)
 		return res.badPetition("malformedRequest", { errors: c.errors })
+
+	req.body.urlname = req.body.urlname.toLowerCase();
+
 	return next();
 }
 
