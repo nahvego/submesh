@@ -31,7 +31,7 @@ const validators = {
 	avatar: function() { return isImageUrl(this, false); },
 	email: function() { return emailValidator.validate(this); },
 
-	subName: function() { return /^[a-zA-Z0-9_-]{3,40}$/.test(this); },
+	subName: function() { return /^.{3,40}$/.test(this); },
 	subUrlname: function() { return "posts" != this && !/^[0-9]+$/.test(this) && /^[a-z0-9-]{4,20}$/.test(this); },
 	subDescription: function() { return this.length >= 5 && this.length <= 500; },
 
