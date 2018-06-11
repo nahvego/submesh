@@ -1,6 +1,8 @@
 /* eslint no-console: 0 */
 console.log("Server is running on " + (process.env.NODE_ENV !== 'production' ? 'development' : 'production') + " mode")
 
+
+const https = require('https');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -40,6 +42,11 @@ app.set('connManager', new ConnectionManager(settings.dbSettings));
 
 app.use('/api/v1', mainRouter);
 
-app.listen(settings.port);
+if(settings.https) {
+	https.createServer(settings.https.options, app).listen(settings.https.port || settings.port);
+} else {
+	app.listen(settings.port);
+}
 
 console.log("Server listening on port " + settings.port);
+console.log("HTTPS: " + (settings.https ? "ON" : "OFF"));

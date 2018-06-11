@@ -1,3 +1,4 @@
+const fs = require('fs');
 module.exports = {
 	dbSettings: {
 		host: 'localhost',
@@ -8,6 +9,16 @@ module.exports = {
 	},
 
 	port: 8000,
+
+	https: {
+		mustRead: true,
+		options: {
+			key: fs.readFileSync('certs/server.key'),
+			cert: fs.readFileSync('certs/server.crt'),
+			ca: fs.readFileSync('certs/ca.crt')
+		},
+		port: 8000
+	},
 
 	pwdSaltRounds: 10, // Rounds para el salt de bcrypt
 
