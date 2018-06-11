@@ -71,6 +71,8 @@ router.put('/:comment', editComment);
 
 router.delete('/:comment', removeComment);
 
+router.use('/:post/votes', checkVoteBody)
+
 router.post('/:comment/votes', voteComment);
 router.delete('/:comment/votes', unvoteComment);
 
@@ -79,6 +81,17 @@ router.delete('/:comment/votes', unvoteComment);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Middlewares////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function checkVoteBody(req, res, next) {
+	req.vote = parseInt(req.body.vote);
+	if(req.body.vote === undefined)
+		return res.badPetition("malformedRequest", "Field 'vote' missing");
+
+	if(req.vote !== 1 && req.vote !== -1)
+		return res.badPetition("malformedRequest", "Invalid vote amount")
+
+	return next();
+}
 
 function checkUserSubbed(req, res, next) {
 	if(req.user === undefined)
@@ -212,8 +225,8 @@ async function voteComment(req, res) {
 		await req.db.query("DELETE FROM `comment_votes` WHERE id = ?", [v[0].id]);
 
 	let insertObj = {
-		commentID: req.user.id,
-		postID: req.comment.id,
+		voterID: req.user.id,
+		commentID: req.comment.id,
 		value: req.vote
 	};
 
