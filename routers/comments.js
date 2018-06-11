@@ -62,7 +62,7 @@ router.post('/', checkCommentInsertIntegrity); // Incluye comprobar replyTo ofc.
 router.put('/:comment', checkCommentUpdateIntegrity);
 
 router.post('/', checkUserSubbed);
-router.delete('/:comment', checkPermissionsRemoveComment);
+router.delete('/:comment', checkPermissionsDeleteComment);
 router.put('/:comment', checkPermissionsEditComment);
 
 router.post('/:comment/votes', checkUserSubbed);
@@ -77,7 +77,7 @@ router.post('/', addComment);
 
 router.put('/:comment', editComment);
 
-router.delete('/:comment', removeComment);
+router.delete('/:comment', deleteComment);
 
 router.use('/:post/votes', checkVoteBody)
 
@@ -113,6 +113,13 @@ function checkUserSubbed(req, res, next) {
 
 function checkPermissionsRemoveComment(req, res, next) {
 	if(!req.isAllowedTo('remove-comments', req.comment.authorID))
+		return res.badPetition("forbidden");
+
+	return next();
+}
+
+function checkPermissionsDeleteComment(req, res, next) {
+	if(!req.isAllowedTo('delete-comments', req.comment.authorID))
 		return res.badPetition("forbidden");
 
 	return next();
@@ -226,7 +233,7 @@ async function editComment(req, res) {
 }
 
 
-async function removeComment(req, res) {
+async function deleteComment(req, res) {
 
 	let get = await req.db.query("SELECT comments.*, IFNULL(COUNT(replies.id), 0) AS deletedReplies FROM `comments` LEFT JOIN `comments` replies ON replies.replyTo = comments.id WHERE comments.id = ? GROUP BY comments.id", [req.params.comment]);
 	await req.db.query("DELETE FROM `comments` WHERE id = ?", [req.params.comment]);
