@@ -6,14 +6,43 @@ ENDPOINTS:
 /sub/:SUB/:postid/comments/:id GET POST PUT DELETE,
 							   -> GET con include_replies y deep?
 
+
+// Vamos a considerar que los comments se remueven (null) con el DELETE y listo.
+
 */
+
+// TODO: Votos, score, permisos, ownVote, en posts añadir includ_comments?
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+async function queryCommentList(req) {
+
+	let comm = (negateNull) => "" +
+	"(SELECT c.*, IFNULL(SUM(v.value), 0) AS score, " +
+	(req.user ? "IFNULL(own_v.value, 0) AS ownVote " : "NULL AS ownVote ") +
+	"FROM `comments` c " +
+	"LEFT JOIN `comment_votes` v ON v.commentID = c.id " +
+	(req.user ? "LEFT JOIN `comment_votes` own_v ON own_v.commentID = c.id AND own_v.voterID = '" + req.user.id + "' " : "") +
+	"WHERE c.postID = ? AND c.replyTo IS " + (negateNull ? "NOT " : "") + "NULL " +
+	"GROUP BY c.id " +
+	"ORDER BY score DESC LIMIT 100) ";
+
+	let query = "" +
+	comm() +
+	"UNION " +
+	comm(true) +
+	"ORDER BY replyTo ASC, score DESC LIMIT " + req.options.count;
+
+	let q = await req.db.query(query, [req.post.id, req.post.id]);
+	return q;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const checkModel = require('models');
 const router = require('express').Router();
 module.exports = router;
 
 // Middlewares
-router.use(checkPermissions);
 router.use('/:comment', checkCommentValidity);
 
 //router.get('/', validateCommentListOptions);
@@ -22,6 +51,10 @@ router.use('/:comment', checkCommentValidity);
 
 router.post('/', checkCommentInsertIntegrity); // Incluye comprobar replyTo ofc.
 router.put('/:comment', checkCommentUpdateIntegrity);
+
+router.post('/', checkUserSubbed);
+router.delete('/:comment', checkPermissionsRemoveComment);
+router.put('/:comment', checkPermissionsEditComment);
 // Endpoints
 
 router.get('/', getCommentList);
@@ -40,18 +73,39 @@ router.delete('/:comment', removeComment);
 // Middlewares////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function checkPermissions(req, res, next) {
-	console.error("comments.js -> checkPermissions -> Falta implementar");
+function checkUserSubbed(req, res, next) {
+	if(req.user === undefined)
+		return res.badPetition("mustBeLoggedIn");
+
+	if(!req.sub.isSubbed)
+		return res.badPetition("mustBeSubbed");
+
+	return next();
+}
+
+function checkPermissionsRemoveComment(req, res, next) {
+	if(!req.isAllowedTo('remove-comments', req.comment.authorID))
+		return res.badPetition("forbidden");
+
+	return next();
+}
+
+function checkPermissionsEditComment(req, res, next) {
+	if(!req.isAllowedTo('edit-comments', req.comment.authorID))
+		return res.badPetition("forbidden");
+
 	return next();
 }
 
 async function checkCommentValidity(req, res, next) {
-	let q = await req.db.query("SELECT id, postID FROM `comments` WHERE id = ?", [req.params.comment]);
+	let q = await req.db.query("SELECT id, postID, authorID FROM `comments` WHERE id = ?", [req.params.comment]);
 	if(null === q)
 		return res.badPetition("noSuchComment");
 
 	if(q[0].postID != req.post.id)
 		return res.badPetition("incorrectPostForGivenComment");
+
+	req.comment = q[0];
 
 	return next();
 }
@@ -87,9 +141,24 @@ function checkCommentUpdateIntegrity(req, res, next) {
 
 async function getCommentList(req, res) {
 
-	let q = await req.db.query("SELECT c.*, u.name AS authorName FROM `comments` c LEFT JOIN `users` u ON u.id = c.authorID WHERE c.postID = ? ORDER BY id DESC LIMIT " + req.options.count, [req.post.id]);
+	let q = await queryCommentList(req);
+	/*
+	q nos devuelve un array de comentarios. Vamos a organizarlos en árbol */
+	// indices: { id_ID: elem }
+	let indices = {};
+	let root = [];
 
-	res.json(q || []);
+	for(let i = 0;i < q.length; i++) {
+		indices['id_' + q[i].id] = q[i];
+		q[i].replies = [];
+		if(q[i].replyTo)
+			indices['id_' + q[i].replyTo].replies.push(q[i]);
+		else
+			root.push(q[i])
+	}
+
+
+	res.json(root);
 }
 
 async function getComment(req, res) {
