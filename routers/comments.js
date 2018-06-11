@@ -241,7 +241,7 @@ async function deleteComment(req, res) {
 	//let get = await req.db.query("SELECT comments.*, IFNULL(COUNT(replies.id), 0) AS deletedReplies FROM `comments` LEFT JOIN `comments` replies ON replies.replyTo = comments.id WHERE comments.id = ? GROUP BY comments.id", [req.params.comment]);
 	//await req.db.query("DELETE FROM `comments` WHERE id = ?", [req.params.comment]);
 	await req.db.query("UPDATE `comments` SET content = '' WHERE id = ?", [req.params.comment])
-	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ?", [req.params.id])
+	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ?", [req.params.comment])
 
 	res.json(get[0]);
 }
