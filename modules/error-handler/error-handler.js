@@ -60,6 +60,8 @@ const errors = {
 	"noSuchComment": [4000, "El comentario no existe", codes.BAD_REQUEST],
 	"incorrectSubForGivenComment": [3001, "El comentario no corresponde al sub proporcionado", codes.BAD_REQUEST],
 	"incorrectPostForGivenComment": [3001, "El comentario no corresponde al post proporcionado", codes.BAD_REQUEST],
+	"alreadyVotedComment": [4100, "Ya votaste este comentario", codes.BAD_REQUEST],
+	"commentNotVoted": [4101, "Comentario no votado", codes.BAD_REQUEST],
 
 	"incompatibleOptionFromID": [410, "La opción <fromID> no es compatible con esta petición", codes.BAD_REQUEST],
 	"incompatibleOptionCount": [411, "La opción <count> no es compatible con esta petición", codes.BAD_REQUEST],

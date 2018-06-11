@@ -18,10 +18,11 @@ ENDPOINTS:
 async function queryCommentList(req) {
 
 	let comm = (negateNull) => "" +
-	"(SELECT c.*, IFNULL(SUM(v.value), 0) AS score, " +
+	"(SELECT c.*, IFNULL(SUM(v.value), 0) AS score, u.name AS authorName, " +
 	(req.user ? "IFNULL(own_v.value, 0) AS ownVote " : "NULL AS ownVote ") +
 	"FROM `comments` c " +
 	"LEFT JOIN `comment_votes` v ON v.commentID = c.id " +
+	"LEFT JOIN `users` u ON u.id = c.authorID " +
 	(req.user ? "LEFT JOIN `comment_votes` own_v ON own_v.commentID = c.id AND own_v.voterID = '" + req.user.id + "' " : "") +
 	"WHERE c.postID = ? AND c.replyTo IS " + (negateNull ? "NOT " : "") + "NULL " +
 	"GROUP BY c.id " +
@@ -55,6 +56,9 @@ router.put('/:comment', checkCommentUpdateIntegrity);
 router.post('/', checkUserSubbed);
 router.delete('/:comment', checkPermissionsRemoveComment);
 router.put('/:comment', checkPermissionsEditComment);
+
+router.post('/:comment/votes', checkUserSubbed);
+router.delete('/:comment/votes', checkUserSubbed);
 // Endpoints
 
 router.get('/', getCommentList);
@@ -66,6 +70,9 @@ router.post('/', addComment);
 router.put('/:comment', editComment);
 
 router.delete('/:comment', removeComment);
+
+router.post('/:comment/votes', voteComment);
+router.delete('/:comment/votes', unvoteComment);
 
 
 
@@ -187,13 +194,59 @@ async function editComment(req, res) {
 	res.json(get[0]);
 }
 
-// TODO: Usar una transaction aquí
+
 async function removeComment(req, res) {
 
 	let get = await req.db.query("SELECT comments.*, IFNULL(COUNT(replies.id), 0) AS deletedReplies FROM `comments` LEFT JOIN `comments` replies ON replies.replyTo = comments.id WHERE comments.id = ? GROUP BY comments.id", [req.params.comment]);
 	await req.db.query("DELETE FROM `comments` WHERE id = ?", [req.params.comment]);
 
 	res.json(get[0]);
+}
+
+async function voteComment(req, res) {
+	let v = await req.db.query("SELECT id, value FROM `comment_votes` WHERE voterID = ? AND commentID = ?", [req.user.id, req.comment.id]);
+	if(null !== v && v[0].value === req.vote)
+		return res.badPetition("alreadyVotedComment");
+
+	if(null !== v)
+		await req.db.query("DELETE FROM `comment_votes` WHERE id = ?", [v[0].id]);
+
+	let insertObj = {
+		commentID: req.user.id,
+		postID: req.comment.id,
+		value: req.vote
+	};
+
+	await req.db.query("INSERT INTO `comment_votes` SET ?", insertObj);
+	let total = await req.db.query("SELECT SUM(value) AS v FROM `comment_votes` WHERE commentID = ? GROUP BY commentID", [req.comment.id]);
+
+	let ret = {
+		commentID: req.comment.id,
+		change: (null === v ? 1 : 2) * req.vote,
+		total: total[0].v
+	};
+
+	res.json(ret);
+}
+
+async function unvoteComment(req, res) {
+	let v = await req.db.query("SELECT id, value FROM `comment_votes` WHERE voterID = ? AND commentID = ?", [req.user.id, req.comment.id]);
+	if(null === v)
+		return res.badPetition("commentNotVoted");
+
+	if(v[0].value !== req.vote)
+		return res.badPetition("malformedRequest", "Unvote amount =/= voted amount")
+
+	await req.db.query("DELETE FROM `comment_votes` WHERE id = ?", [v[0].id]);
+	let totalQuery = await req.db.query("SELECT IFNULL(SUM(value), 0) AS v FROM `comment_votes` WHERE commentID = ? GROUP BY commentID", [req.comment.id]);
+	let total = (null === totalQuery ? 0 : totalQuery[0].v)
+	let ret = {
+		commentID: req.comment.id,
+		change: -parseInt(v[0].value),
+		total
+	};
+
+	res.json(ret);
 }
 
 /*
