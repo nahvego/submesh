@@ -70,6 +70,7 @@ function generatePayload(req, res, data) {
 		await req.db.query("INSERT INTO `tokens` SET ?", insertObj);
 
 		let s = await req.db.query("SELECT GROUP_CONCAT(subs.urlname SEPARATOR ',') AS list FROM `subscriptions` s JOIN `subs` ON s.subID = subs.id WHERE s.userID = ? GROUP BY s.userID", [data.id]);
+		let p = await req.db.query("SELECT GROUP_CONCAT(permissionCode SEPARATOR ',') FROM `users` u LEFT JOIN `role_permissions` p ON p.roleID = u.roleID WHERE u.id = ?", data.id)
 
 		let retObj = {
 			userID: insertObj.userID,
@@ -77,7 +78,8 @@ function generatePayload(req, res, data) {
 			token: insertObj.token,
 			refresh: insertObj.refreshToken,
 			validUntil: insertObj.expirationDate,
-			subscriptions: (s !== null && s[0].list.split(',')) || []
+			subscriptions: (s !== null && s[0].list.split(',')) || [],
+			permissions: (p !== null && p[0].perms.split(',')) || []
 		};
 		res.json(retObj)
 	});
