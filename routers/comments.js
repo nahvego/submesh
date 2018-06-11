@@ -15,7 +15,7 @@ ENDPOINTS:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async function queryCommentList(req) {
+async function queryCommentList(req, singleComment) {
 
 	let comm = (negateNull) => "" +
 	"(SELECT c.*, IFNULL(SUM(v.value), 0) AS score, u.name AS authorName, " +
@@ -24,9 +24,13 @@ async function queryCommentList(req) {
 	"LEFT JOIN `comment_votes` v ON v.commentID = c.id " +
 	"LEFT JOIN `users` u ON u.id = c.authorID " +
 	(req.user ? "LEFT JOIN `comment_votes` own_v ON own_v.commentID = c.id AND own_v.voterID = '" + req.user.id + "' " : "") +
-	"WHERE c.postID = ? AND c.replyTo IS " + (negateNull ? "NOT " : "") + "NULL " +
+	(singleComment ?
+		"WHERE " + (negateNull ? "c.replyTo" : "c.id") + " = ?"
+		:
+		"WHERE c.postID = ? AND c.replyTo IS " + (negateNull ? "NOT" : "")
+	) + " NULL " +
 	"GROUP BY c.id " +
-	"ORDER BY score DESC LIMIT 100) ";
+	"ORDER BY score DESC LIMIT " + (singleComment && !negateNull ? "1" : req.options.count) + ")";
 
 	let query = "" +
 	comm() +
@@ -34,7 +38,11 @@ async function queryCommentList(req) {
 	comm(true) +
 	"ORDER BY replyTo ASC, score DESC LIMIT " + req.options.count;
 
-	let q = await req.db.query(query, [req.post.id, req.post.id]);
+	let q;
+	if(singleComment)
+		q = await req.db.query(query, [req.comment.id, req.comment.id]);
+	else
+		q = await req.db.query(query, [req.post.id, req.post.id]);
 	return q;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,7 +193,12 @@ async function getComment(req, res) {
 	// include_replies? deep? replies_count?
 
 	let q = await req.db.query("SELECT c.*, u.name AS authorName FROM `comments` c LEFT JOIN `users` u ON u.id = c.authorID WHERE c.id = ?", [req.params.comment]);
-	res.json(q[0]);
+
+	let comm = q[0];
+	comm.replies = [];
+	for(let i = 1;i < q.length; i++)
+		comm.replies.push(q[i])
+	res.json(comm);
 }
 
 async function addComment(req, res) {
@@ -196,13 +209,18 @@ async function addComment(req, res) {
 	let ins = await req.db.query("INSERT INTO `comments` SET ?", req.body);
 	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ? ", [ins.insertId]);
 
+	get[0].replies = [];
+	get[0].authorName = req.user.name;
+
 	res.json(get[0]);
 }
 
 async function editComment(req, res) {
 
 	await req.db.query("UPDATE `comments` SET ? WHERE id = ?", [req.body, req.params.comment]);
-	let get = await req.db.query("SELECT * FROM `comments` WHERE id = ? ", [req.params.comment]);
+	let get = await req.db.query("SELECT comments.*, users.name FROM `comments` LEFT JOIN `users` ON users.id = comments.authorID WHERE id = ? ", [req.params.comment]);
+
+	get[0].replies = [];
 
 	res.json(get[0]);
 }
