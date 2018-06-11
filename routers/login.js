@@ -91,7 +91,7 @@ function generatePayload(req, res, data) {
 			validUntil: insertObj.expirationDate,
 			subscriptions: (s !== null && s[0].list.split(',')) || [],
 			permissions: (p !== null && p[0].perms !== null && p[0].perms.split(',')) || [],
-			sub_permissions: subp
+			subPermissions: subp
 		};
 		res.json(retObj)
 	});
