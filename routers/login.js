@@ -79,9 +79,10 @@ function generatePayload(req, res, data) {
 		"WHERE u.id = ? " +
 		"GROUP BY s.id", [data.id]);
 
+		let subPerms = {};
 		if(null === subp)
 			subp = [];
-		subp = subp.filter(o => o.perms !== null).map(o => { o.permissions = o.perms.split(','); delete o.perms; return o; });
+		subp.filter(o => o.perms !== null).forEach(o => { subPerms[o.urlname] = o.perms.split(','); });
 
 		let retObj = {
 			userID: insertObj.userID,
@@ -91,7 +92,7 @@ function generatePayload(req, res, data) {
 			validUntil: insertObj.expirationDate,
 			subscriptions: (s !== null && s[0].list.split(',')) || [],
 			permissions: (p !== null && p[0].perms !== null && p[0].perms.split(',')) || [],
-			subPermissions: subp
+			subPermissions: subPerms
 		};
 		res.json(retObj)
 	});
