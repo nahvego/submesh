@@ -70,7 +70,18 @@ function generatePayload(req, res, data) {
 		await req.db.query("INSERT INTO `tokens` SET ?", insertObj);
 
 		let s = await req.db.query("SELECT GROUP_CONCAT(subs.urlname SEPARATOR ',') AS list FROM `subscriptions` s JOIN `subs` ON s.subID = subs.id WHERE s.userID = ? GROUP BY s.userID", [data.id]);
-		let p = await req.db.query("SELECT GROUP_CONCAT(permissionCode SEPARATOR ',') FROM `users` u LEFT JOIN `role_permissions` p ON p.roleID = u.roleID WHERE u.id = ?", data.id)
+		let p = await req.db.query("SELECT GROUP_CONCAT(permissionCode SEPARATOR ',') AS perms FROM `users` u LEFT JOIN `role_permissions` p ON p.roleID = u.roleID WHERE u.id = ?", [data.id]);
+		let subp = await req.db.query("" +
+		"SELECT subs.urlname, GROUP_CONCAT(p.permissionCode SEPARATOR ',') AS perms FROM `users` u " +
+		"LEFT JOIN `subscriptions` s ON s.userID = u.id " +
+		"LEFT JOIN `sub_mod_permissions` p ON p.subscriptionID = s.id " +
+		"LEFT JOIN `subs` ON subs.id = s.subID " +
+		"WHERE u.id = ? " +
+		"GROUP BY s.id", [data.id]);
+
+		if(null === subp)
+			subp = [];
+		subp = subp.filter(o => o.perms !== null).map(o => { o.permissions = o.perms.split(','); delete o.perms; return o; });
 
 		let retObj = {
 			userID: insertObj.userID,
@@ -79,7 +90,8 @@ function generatePayload(req, res, data) {
 			refresh: insertObj.refreshToken,
 			validUntil: insertObj.expirationDate,
 			subscriptions: (s !== null && s[0].list.split(',')) || [],
-			permissions: (p !== null && p[0].perms.split(',')) || []
+			permissions: (p !== null && p[0].perms !== null && p[0].perms.split(',')) || [],
+			sub_permissions: subp
 		};
 		res.json(retObj)
 	});
