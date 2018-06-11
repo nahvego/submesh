@@ -151,6 +151,7 @@ function checkPermissionsEditPost(req, res, next) {
 }
 
 function checkPermissionsDeletePost(req, res, next) {
+	console.log(req.user, req.post);
 	if(!req.isAllowedTo('delete-posts', req.post.authorID))
 		return res.badPetition("forbidden");
 
@@ -184,7 +185,7 @@ function validatePostListOptions(req, res, next) {
 
 async function checkPostValidity(req, res, next) {
 
-	let q = await req.db.query("SELECT id, subID FROM `posts` WHERE id = ?", [req.params.post]);
+	let q = await req.db.query("SELECT id, subID, authorID FROM `posts` WHERE id = ?", [req.params.post]);
 	if(null === q)
 		return res.badPetition("noSuchPost");
 

@@ -183,15 +183,16 @@ async function getCommentList(req, res) {
 	let indices = {};
 	let root = [];
 
-	for(let i = 0;i < q.length; i++) {
-		indices['id_' + q[i].id] = q[i];
-		q[i].replies = [];
-		q[i].deleted = q[i].content === null;
-		if(q[i].replyTo)
-			indices['id_' + q[i].replyTo].replies.push(q[i]);
-		else
-			root.push(q[i])
-	}
+	if(q !== null)
+		for(let i = 0;i < q.length; i++) {
+			indices['id_' + q[i].id] = q[i];
+			q[i].replies = [];
+			q[i].deleted = q[i].content === null;
+			if(q[i].replyTo)
+				indices['id_' + q[i].replyTo].replies.push(q[i]);
+			else
+				root.push(q[i])
+		}
 
 
 	res.json(root);
